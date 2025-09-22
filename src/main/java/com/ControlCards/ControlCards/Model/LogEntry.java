@@ -26,6 +26,6 @@ public class LogEntry extends BaseEntity {
 
     // Constructors
     public LogEntry() {
-        this.createdAt = LocalDateTime.now();
+
     }
 }

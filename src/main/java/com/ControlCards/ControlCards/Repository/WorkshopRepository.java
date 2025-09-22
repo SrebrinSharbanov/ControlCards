@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface WorkshopRepository extends JpaRepository<WorkCenter, Integer> {
+public interface WorkshopRepository extends JpaRepository<Workshop, Long> {
 
     Optional<Workshop> findById(Long id);
     Workshop save(Workshop workshop);

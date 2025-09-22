@@ -1,6 +1,7 @@
 package com.ControlCards.ControlCards.Model;
 
 
+import com.ControlCards.ControlCards.Util.Enums.CardStatus;
 import com.ControlCards.ControlCards.Util.Enums.Shift;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -51,8 +52,40 @@ public class Card extends BaseEntity {
     @Column(name = "resolution_duration_minutes")
     private Integer resolutionDurationMinutes;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private CardStatus status = CardStatus.CREATED;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "extended_by_user_id")
+    private User extendedBy;
+
+    @Column(name = "extended_at")
+    private LocalDateTime extendedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "closed_by_user_id")
+    private User closedBy;
+
+    @Column(name = "closed_at")
+    private LocalDateTime closedAt;
+
     // Constructors
     public Card() {
         this.createdAt = LocalDateTime.now();
+        this.status = CardStatus.CREATED;
+    }
+
+    // Workflow methods
+    public void extend(User user) {
+        this.status = CardStatus.EXTENDED;
+        this.extendedBy = user;
+        this.extendedAt = LocalDateTime.now();
+    }
+
+    public void close(User user) {
+        this.status = CardStatus.CLOSED;
+        this.closedBy = user;
+        this.closedAt = LocalDateTime.now();
     }
 }

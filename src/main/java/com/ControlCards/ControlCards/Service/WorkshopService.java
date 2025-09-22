@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface WorkshopService {
     // CRUD операции
 
+    List<Workshop> findAll();
     Optional<Workshop> findById(Long id);
     Workshop save(Workshop workshop);
     void deleteById(Long id);

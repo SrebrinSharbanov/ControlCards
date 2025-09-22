@@ -28,6 +28,11 @@ public class WorkshopServiceImpl implements WorkshopService {
     
 
     @Override
+    public List<Workshop> findAll() {
+        return workshopRepository.findAll();
+    }
+
+    @Override
     public Optional<Workshop> findById(Long id) {
         return workshopRepository.findById(id);
     }

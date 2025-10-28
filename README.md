@@ -7,7 +7,7 @@ ControlCards is a Spring Boot web application designed for managing work cards i
 ## Technology Stack
 
 - **Java**: 17
-- **Spring Boot**: 3.5.6 
+- **Spring Boot**: 3.4.0 
 - **Build Tool**: Maven
 - **Framework**: Spring Framework
 

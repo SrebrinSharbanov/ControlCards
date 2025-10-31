@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Created Cards</title>
+</head>
+<body>
+    <h1>Created Cards</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Workshop</th>
+                <th>Work Center</th>
+                <th>Shift</th>
+                <th>Short Description</th>
+                <th>Created By</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="card : ${cards}">
+                <td th:text="${card.id}"></td>
+                <td th:text="${card.workshopName}"></td>
+                <td th:text="${card.workCenterName}"></td>
+                <td th:text="${card.shift}"></td>
+                <td th:text="${card.shortDescription}"></td>
+                <td th:text="${card.createdByUsername}"></td>
+                <td>
+                    <a th:href="@{/cards/extend/{id}(id=${card.id})}">Extend</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>
+

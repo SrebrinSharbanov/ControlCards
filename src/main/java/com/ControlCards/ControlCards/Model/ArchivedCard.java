@@ -1,6 +1,5 @@
 package com.ControlCards.ControlCards.Model;
 
-import com.ControlCards.ControlCards.Util.Enums.CardStatus;
 import com.ControlCards.ControlCards.Util.Enums.Shift;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,11 +9,11 @@ import lombok.ToString;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "cards")
+@Table(name = "archived_cards")
 @Getter
 @Setter
 @ToString
-public class Card extends BaseEntity {
+public class ArchivedCard extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_user_id", nullable = false)
@@ -51,40 +50,31 @@ public class Card extends BaseEntity {
     @Column(name = "resolution_duration_minutes")
     private Integer resolutionDurationMinutes;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private CardStatus status = CardStatus.CREATED;
+    @Column(name = "archived_at", nullable = false, updatable = false)
+    private LocalDateTime archivedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "extended_by_user_id")
-    private User extendedBy;
-
-    @Column(name = "extended_at")
-    private LocalDateTime extendedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "closed_by_user_id")
-    private User closedBy;
-
-    @Column(name = "closed_at")
-    private LocalDateTime closedAt;
+    @JoinColumn(name = "archived_by_user_id", nullable = false)
+    private User archivedBy;
 
     // Constructors
-    public Card() {
-        this.createdAt = LocalDateTime.now();
-        this.status = CardStatus.CREATED;
+    public ArchivedCard() {
+        this.archivedAt = LocalDateTime.now();
     }
 
-    // Workflow methods
-    public void extend(User user) {
-        this.status = CardStatus.EXTENDED;
-        this.extendedBy = user;
-        this.extendedAt = LocalDateTime.now();
-    }
-
-    public void close(User user) {
-        this.status = CardStatus.CLOSED;
-        this.closedBy = user;
-        this.closedAt = LocalDateTime.now();
+    public ArchivedCard(Card card, User archivedBy) {
+        this();
+        this.createdBy = card.getCreatedBy();
+        this.updatedBy = card.getUpdatedBy();
+        this.createdAt = card.getCreatedAt();
+        this.updatedAt = card.getUpdatedAt();
+        this.workshop = card.getWorkshop();
+        this.workCenter = card.getWorkCenter();
+        this.shift = card.getShift();
+        this.shortDescription = card.getShortDescription();
+        this.detailedDescription = card.getDetailedDescription();
+        this.resolutionDurationMinutes = card.getResolutionDurationMinutes();
+        this.archivedBy = archivedBy;
     }
 }
+

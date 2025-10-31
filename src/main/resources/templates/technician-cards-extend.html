@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extend Card</title>
+</head>
+<body>
+    <h1>Extend Card</h1>
+    <p>Are you sure you want to extend this card?</p>
+    <form th:action="@{/cards/extend/{id}(id=${cardId})}" method="post">
+        <button type="submit">Yes, Extend Card</button>
+    </form>
+    <a th:href="@{/cards/created}">Cancel</a>
+</body>
+</html>
+

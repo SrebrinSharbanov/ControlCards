@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Card</title>
+</head>
+<body>
+    <h1>Create New Card</h1>
+    <form th:action="@{/cards/new}" th:object="${card}" method="post">
+        <div>
+            <label>Workshop</label>
+            <select th:field="*{workshopId}">
+                <option value="">Select Workshop</option>
+                <option th:each="workshop : ${workshops}" 
+                        th:value="${workshop.id}" 
+                        th:text="${workshop.name}"></option>
+            </select>
+        </div>
+        <div>
+            <label>Work Center</label>
+            <select th:field="*{workCenterId}">
+                <option value="">Select Work Center</option>
+                <option th:each="workCenter : ${workCenters}" 
+                        th:value="${workCenter.id}" 
+                        th:text="${workCenter.number}"></option>
+            </select>
+        </div>
+        <div>
+            <label>Shift</label>
+            <select th:field="*{shift}">
+                <option value="">Select Shift</option>
+                <option th:each="shift : ${shifts}" 
+                        th:value="${shift}" 
+                        th:text="${shift}"></option>
+            </select>
+        </div>
+        <div>
+            <label>Short Description</label>
+            <input type="text" th:field="*{shortDescription}" maxlength="500"/>
+        </div>
+        <div>
+            <label>Detailed Description</label>
+            <textarea th:field="*{detailedDescription}" maxlength="2000"></textarea>
+        </div>
+        <div>
+            <label>Resolution Duration (minutes)</label>
+            <input type="number" th:field="*{resolutionDurationMinutes}"/>
+        </div>
+        <button type="submit">Create Card</button>
+    </form>
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>
+

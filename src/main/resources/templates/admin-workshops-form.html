@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Form</title>
+</head>
+<body>
+    <h1 th:text="${workshop.id == null ? 'Create Workshop' : 'Edit Workshop'}">Workshop Form</h1>
+    <form th:action="@{/admin/workshops/new}" th:if="${workshop.id == null}" th:object="${workshop}" th:method="post">
+        <div>
+            <label>Name</label>
+            <input type="text" th:field="*{name}"/>
+        </div>
+        <div>
+            <label>Description</label>
+            <textarea th:field="*{description}"></textarea>
+        </div>
+        <button type="submit">Save</button>
+    </form>
+    <form th:action="@{/admin/workshops/edit/{id}(id=${workshop.id})}" th:if="${workshop.id != null}" th:object="${workshop}" th:method="post">
+        <div>
+            <label>Name</label>
+            <input type="text" th:field="*{name}"/>
+        </div>
+        <div>
+            <label>Description</label>
+            <textarea th:field="*{description}"></textarea>
+        </div>
+        <button type="submit">Save</button>
+    </form>
+    <a th:href="@{/admin/workshops}">Cancel</a>
+</body>
+</html>

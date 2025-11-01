@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Center Management</title>
+</head>
+<body>
+    <h1>Work Center Management</h1>
+    <a th:href="@{/admin/workcenters/new}">Create New Work Center</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Number</th>
+                <th>Description</th>
+                <th>Machine Type</th>
+                <th>Workshop</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="workCenter : ${workCenters}">
+                <td th:text="${workCenter.number}"></td>
+                <td th:text="${workCenter.description}"></td>
+                <td th:text="${workCenter.machineType}"></td>
+                <td th:text="${workCenter.workshop.name}"></td>
+                <td>
+                    <a th:href="@{/admin/workcenters/edit/{id}(id=${workCenter.id})}">Edit</a>
+                    <form th:action="@{/admin/workcenters/delete/{id}(id=${workCenter.id})}" th:method="delete" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>
+

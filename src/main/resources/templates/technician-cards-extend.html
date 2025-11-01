@@ -8,7 +8,7 @@
 <body>
     <h1>Extend Card</h1>
     <p>Are you sure you want to extend this card?</p>
-    <form th:action="@{/cards/extend/{id}(id=${cardId})}" method="post">
+    <form th:action="@{/cards/extend/{id}(id=${cardId})}" th:method="post">
         <button type="submit">Yes, Extend Card</button>
     </form>
     <a th:href="@{/cards/created}">Cancel</a>

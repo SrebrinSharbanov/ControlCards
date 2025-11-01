@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Form</title>
+</head>
+<body>
+    <h1 th:text="${user.id == null ? 'Create User' : 'Edit User'}">User Form</h1>
+    <form th:action="@{/admin/users/new}" th:if="${user.id == null}" th:object="${user}" th:method="post">
+        <div>
+            <label>Username</label>
+            <input type="text" th:field="*{username}"/>
+        </div>
+        <div>
+            <label>Password</label>
+            <input type="password" th:field="*{password}"/>
+        </div>
+        <div>
+            <label>First Name</label>
+            <input type="text" th:field="*{firstName}"/>
+        </div>
+        <div>
+            <label>Last Name</label>
+            <input type="text" th:field="*{lastName}"/>
+        </div>
+        <div>
+            <label>Role</label>
+            <select th:field="*{role}">
+                <option th:each="role : ${roles}" th:value="${role}" th:text="${role}"></option>
+            </select>
+        </div>
+        <button type="submit">Save</button>
+    </form>
+    <form th:action="@{/admin/users/edit/{id}(id=${user.id})}" th:if="${user.id != null}" th:object="${user}" th:method="post">
+        <div>
+            <label>Username</label>
+            <input type="text" th:field="*{username}"/>
+        </div>
+        <div>
+            <label>Password</label>
+            <input type="password" th:field="*{password}"/>
+        </div>
+        <div>
+            <label>First Name</label>
+            <input type="text" th:field="*{firstName}"/>
+        </div>
+        <div>
+            <label>Last Name</label>
+            <input type="text" th:field="*{lastName}"/>
+        </div>
+        <div>
+            <label>Role</label>
+            <select th:field="*{role}">
+                <option th:each="role : ${roles}" th:value="${role}" th:text="${role}"></option>
+            </select>
+        </div>
+        <button type="submit">Save</button>
+    </form>
+    <a th:href="@{/admin/users}">Cancel</a>
+</body>
+</html>

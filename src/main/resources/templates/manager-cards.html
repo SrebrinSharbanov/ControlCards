@@ -28,7 +28,7 @@
                 <td th:text="${card.shortDescription}"></td>
                 <td th:text="${card.extendedByUsername}"></td>
                 <td>
-                    <form th:action="@{/cards/close/{id}(id=${card.id})}" method="post">
+                    <form th:action="@{/cards/close/{id}(id=${card.id})}" th:method="post">
                         <button type="submit">Close Card</button>
                     </form>
                 </td>

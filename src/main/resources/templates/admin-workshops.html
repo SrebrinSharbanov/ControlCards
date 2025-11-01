@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Management</title>
+</head>
+<body>
+    <h1>Workshop Management</h1>
+    <a th:href="@{/admin/workshops/new}">Create New Workshop</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="workshop : ${workshops}">
+                <td th:text="${workshop.name}"></td>
+                <td th:text="${workshop.description}"></td>
+                <td>
+                    <a th:href="@{/admin/workshops/edit/{id}(id=${workshop.id})}">Edit</a>
+                    <form th:action="@{/admin/workshops/delete/{id}(id=${workshop.id})}" th:method="delete" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>
+

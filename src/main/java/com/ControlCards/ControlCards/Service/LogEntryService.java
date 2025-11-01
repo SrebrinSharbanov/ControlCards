@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class LogEntryService {
@@ -31,5 +33,10 @@ public class LogEntryService {
     public void saveLog(LogEntry logEntry) {
         log.debug("Saving log entry: {}", logEntry.getDescription());
         logEntryRepository.save(logEntry);
+    }
+
+    public List<LogEntry> findAll() {
+        log.debug("Finding all log entries");
+        return logEntryRepository.findAll();
     }
 }

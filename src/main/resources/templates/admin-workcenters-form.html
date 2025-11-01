@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Center Form</title>
+</head>
+<body>
+    <h1 th:text="${workCenter.id == null ? 'Create Work Center' : 'Edit Work Center'}">Work Center Form</h1>
+    <form th:action="@{/admin/workcenters/new}" th:if="${workCenter.id == null}" th:object="${workCenter}" th:method="post">
+        <div>
+            <label>Number</label>
+            <input type="text" th:field="*{number}"/>
+        </div>
+        <div>
+            <label>Description</label>
+            <textarea th:field="*{description}"></textarea>
+        </div>
+        <div>
+            <label>Machine Type</label>
+            <input type="text" th:field="*{machineType}"/>
+        </div>
+        <div>
+            <label>Workshop</label>
+            <select name="workshopId" required>
+                <option value="">Select Workshop</option>
+                <option th:each="workshop : ${workshops}" 
+                        th:value="${workshop.id}" 
+                        th:text="${workshop.name}"
+                        th:selected="${workCenter.workshop != null and workCenter.workshop.id == workshop.id}"></option>
+            </select>
+        </div>
+        <button type="submit">Save</button>
+    </form>
+    <form th:action="@{/admin/workcenters/edit/{id}(id=${workCenter.id})}" th:if="${workCenter.id != null}" th:object="${workCenter}" th:method="post">
+        <div>
+            <label>Number</label>
+            <input type="text" th:field="*{number}"/>
+        </div>
+        <div>
+            <label>Description</label>
+            <textarea th:field="*{description}"></textarea>
+        </div>
+        <div>
+            <label>Machine Type</label>
+            <input type="text" th:field="*{machineType}"/>
+        </div>
+        <div>
+            <label>Workshop</label>
+            <select name="workshopId" required>
+                <option value="">Select Workshop</option>
+                <option th:each="workshop : ${workshops}" 
+                        th:value="${workshop.id}" 
+                        th:text="${workshop.name}"
+                        th:selected="${workCenter.workshop != null and workCenter.workshop.id == workshop.id}"></option>
+            </select>
+        </div>
+        <button type="submit">Save</button>
+    </form>
+    <a th:href="@{/admin/workcenters}">Cancel</a>
+</body>
+</html>

@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Create New Card</h1>
-    <form th:action="@{/cards/new}" th:object="${card}" method="post">
+    <form th:action="@{/cards/new}" th:object="${card}" th:method="post">
         <div>
             <label>Workshop</label>
             <select th:field="*{workshopId}">

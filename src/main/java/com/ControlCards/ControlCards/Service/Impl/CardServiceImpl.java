@@ -4,6 +4,8 @@ import com.ControlCards.ControlCards.DTO.CardCreateDTO;
 import com.ControlCards.ControlCards.DTO.CardViewDTO;
 import com.ControlCards.ControlCards.Exception.CardNotFoundException;
 import com.ControlCards.ControlCards.Exception.InvalidCardStatusException;
+import com.ControlCards.ControlCards.Exception.WorkshopNotFoundException;
+import com.ControlCards.ControlCards.Exception.WorkCenterNotFoundException;
 import com.ControlCards.ControlCards.Model.ArchivedCard;
 import com.ControlCards.ControlCards.Model.Card;
 import com.ControlCards.ControlCards.Model.User;
@@ -60,11 +62,11 @@ public class CardServiceImpl implements CardService {
         card.setCreatedAt(LocalDateTime.now());
         
         Workshop workshop = workshopService.findById(cardCreateDTO.getWorkshopId())
-                .orElseThrow(() -> new RuntimeException("Workshop not found"));
+                .orElseThrow(() -> new WorkshopNotFoundException("Workshop not found: " + cardCreateDTO.getWorkshopId()));
         card.setWorkshop(workshop);
         
         WorkCenter workCenter = workCenterService.findById(cardCreateDTO.getWorkCenterId())
-                .orElseThrow(() -> new RuntimeException("Work center not found"));
+                .orElseThrow(() -> new WorkCenterNotFoundException("Work center not found: " + cardCreateDTO.getWorkCenterId()));
         card.setWorkCenter(workCenter);
         
         cardRepository.save(card);

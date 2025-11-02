@@ -1,6 +1,7 @@
 package com.ControlCards.ControlCards.Controllers;
 
 import com.ControlCards.ControlCards.Exception.UserNotFoundException;
+import com.ControlCards.ControlCards.Exception.WorkshopNotFoundException;
 import com.ControlCards.ControlCards.Model.LogEntry;
 import com.ControlCards.ControlCards.Model.User;
 import com.ControlCards.ControlCards.Model.WorkCenter;
@@ -160,7 +161,7 @@ public class AdminController {
     public String createWorkCenter(@ModelAttribute WorkCenter workCenter, @RequestParam UUID workshopId, 
                                    @AuthenticationPrincipal UserDetails userDetails) {
         Workshop workshop = workshopService.findById(workshopId)
-                .orElseThrow(() -> new RuntimeException("Workshop not found"));
+                .orElseThrow(() -> new WorkshopNotFoundException("Workshop not found: " + workshopId));
         workCenter.setWorkshop(workshop);
         workCenterService.save(workCenter);
         log.info("Work center created: {}", workCenter.getNumber());

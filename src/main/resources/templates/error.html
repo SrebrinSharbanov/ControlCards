@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .error-container {
+            border: 2px solid #dc3545;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #f8d7da;
+        }
+        .error-title {
+            color: #721c24;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .error-message {
+            color: #721c24;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .validation-errors {
+            margin-top: 20px;
+        }
+        .validation-errors ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .validation-errors li {
+            background-color: #fff;
+            border-left: 4px solid #dc3545;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-link:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1 class="error-title" th:text="${errorTitle ?: 'Error'}">Error</h1>
+        <p class="error-message" th:text="${errorMessage ?: 'An error occurred'}">An error occurred</p>
+        
+        <div class="validation-errors" th:if="${errors != null and !errors.isEmpty()}">
+            <h3>Validation Errors:</h3>
+            <ul>
+                <li th:each="error : ${errors}">
+                    <strong th:text="${error.key}"></strong>: <span th:text="${error.value}"></span>
+                </li>
+            </ul>
+        </div>
+        
+        <a href="/dashboard" class="back-link">Back to Dashboard</a>
+    </div>
+</body>
+</html>
+

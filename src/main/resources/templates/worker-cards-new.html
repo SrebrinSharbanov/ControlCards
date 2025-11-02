@@ -7,6 +7,14 @@
 </head>
 <body>
     <h1>Create New Card</h1>
+    
+    <div th:if="${errors != null and !errors.isEmpty()}" style="color: red; margin-bottom: 20px;">
+        <h3>Validation Errors:</h3>
+        <ul>
+            <li th:each="error : ${errors}" th:text="${error.value}"></li>
+        </ul>
+    </div>
+    
     <form th:action="@{/cards/new}" th:object="${card}" th:method="post">
         <div>
             <label>Workshop</label>
@@ -16,6 +24,7 @@
                         th:value="${workshop.id}" 
                         th:text="${workshop.name}"></option>
             </select>
+            <span th:if="${#fields.hasErrors('workshopId')}" th:errors="*{workshopId}" style="color: red;"></span>
         </div>
         <div>
             <label>Work Center</label>
@@ -25,6 +34,7 @@
                         th:value="${workCenter.id}" 
                         th:text="${workCenter.number}"></option>
             </select>
+            <span th:if="${#fields.hasErrors('workCenterId')}" th:errors="*{workCenterId}" style="color: red;"></span>
         </div>
         <div>
             <label>Shift</label>
@@ -34,18 +44,22 @@
                         th:value="${shift}" 
                         th:text="${shift}"></option>
             </select>
+            <span th:if="${#fields.hasErrors('shift')}" th:errors="*{shift}" style="color: red;"></span>
         </div>
         <div>
             <label>Short Description</label>
             <input type="text" th:field="*{shortDescription}" maxlength="500"/>
+            <span th:if="${#fields.hasErrors('shortDescription')}" th:errors="*{shortDescription}" style="color: red;"></span>
         </div>
         <div>
             <label>Detailed Description</label>
             <textarea th:field="*{detailedDescription}" maxlength="2000"></textarea>
+            <span th:if="${#fields.hasErrors('detailedDescription')}" th:errors="*{detailedDescription}" style="color: red;"></span>
         </div>
         <div>
             <label>Resolution Duration (minutes)</label>
             <input type="number" th:field="*{resolutionDurationMinutes}"/>
+            <span th:if="${#fields.hasErrors('resolutionDurationMinutes')}" th:errors="*{resolutionDurationMinutes}" style="color: red;"></span>
         </div>
         <button type="submit">Create Card</button>
     </form>

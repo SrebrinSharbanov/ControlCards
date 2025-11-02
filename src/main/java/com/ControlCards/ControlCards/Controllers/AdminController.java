@@ -194,7 +194,7 @@ public class AdminController {
             existingWorkCenter.setMachineType(workCenter.getMachineType());
             
             Workshop workshop = workshopService.findById(workshopId)
-                    .orElseThrow(() -> new RuntimeException("Workshop not found"));
+                    .orElseThrow(() -> new WorkshopNotFoundException("Workshop not found: " + workshopId));
             existingWorkCenter.setWorkshop(workshop);
             
             workCenterService.save(existingWorkCenter);

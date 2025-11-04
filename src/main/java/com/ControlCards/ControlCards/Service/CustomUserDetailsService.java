@@ -2,6 +2,7 @@ package com.ControlCards.ControlCards.Service;
 
 import com.ControlCards.ControlCards.Model.User;
 import com.ControlCards.ControlCards.Repository.UserRepository;
+import com.ControlCards.ControlCards.Util.Enums.Role;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -45,6 +46,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Role role) {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 }

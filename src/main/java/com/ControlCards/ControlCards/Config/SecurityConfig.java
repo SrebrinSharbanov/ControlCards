@@ -1,7 +1,5 @@
 package com.ControlCards.ControlCards.Config;
 
-import com.ControlCards.ControlCards.Service.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,13 +15,6 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    private final CustomUserDetailsService userDetailsService;
-    
-    @Autowired
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -47,7 +38,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/", "/home", "/login", "/info", "/user-request", "/error", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/home", "/login", "/info", "/user-request", "/error", "/favicon.ico", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/manager/**").hasAnyRole("ADMIN", "PRODUCTION_MANAGER", "MANAGER")
                         .requestMatchers("/technician/**").hasAnyRole("ADMIN", "PRODUCTION_MANAGER", "MANAGER", "TECHNICIAN")

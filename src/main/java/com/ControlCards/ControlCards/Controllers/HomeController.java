@@ -9,8 +9,8 @@ import org.springframework.web.servlet.ModelAndView;
 public class HomeController {
 
     @GetMapping("/")
-    public String home() {
-        return "index";
+    public ModelAndView home() {
+        return new ModelAndView("index");
     }
 
     @GetMapping("/login")
@@ -21,7 +21,7 @@ public class HomeController {
     }
 
     @GetMapping("/info")
-    public String info() {
-        return "info";
+    public ModelAndView info() {
+        return new ModelAndView("info");
     }
 }

@@ -1,34 +1,45 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error</title>
+    <title>Грешка</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
         .error-container {
+            background: white;
             border: 2px solid #dc3545;
-            border-radius: 5px;
-            padding: 20px;
-            background-color: #f8d7da;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         .error-title {
             color: #721c24;
             font-size: 24px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
         .error-message {
             color: #721c24;
             font-size: 16px;
             margin-bottom: 20px;
+            line-height: 1.6;
         }
         .validation-errors {
             margin-top: 20px;
+        }
+        .validation-errors h3 {
+            color: #721c24;
+            margin-bottom: 10px;
         }
         .validation-errors ul {
             list-style-type: none;
@@ -39,28 +50,30 @@
             border-left: 4px solid #dc3545;
             padding: 10px;
             margin-bottom: 10px;
+            color: #333;
         }
         .back-link {
             display: inline-block;
             margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
+            padding: 12px 24px;
+            background-color: #667eea;
             color: white;
             text-decoration: none;
             border-radius: 5px;
+            transition: background 0.3s;
         }
         .back-link:hover {
-            background-color: #0056b3;
+            background-color: #764ba2;
         }
     </style>
 </head>
 <body>
     <div class="error-container">
-        <h1 class="error-title" th:text="${errorTitle ?: 'Error'}">Error</h1>
-        <p class="error-message" th:text="${errorMessage ?: 'An error occurred'}">An error occurred</p>
+        <h1 class="error-title" th:text="${errorTitle ?: 'Грешка'}">Грешка</h1>
+        <p class="error-message" th:text="${errorMessage ?: 'Възникна грешка'}">Възникна грешка</p>
         
         <div class="validation-errors" th:if="${errors != null and !errors.isEmpty()}">
-            <h3>Validation Errors:</h3>
+            <h3>Грешки при валидация:</h3>
             <ul>
                 <li th:each="error : ${errors}">
                     <strong th:text="${error.key}"></strong>: <span th:text="${error.value}"></span>
@@ -68,8 +81,7 @@
             </ul>
         </div>
         
-        <a href="/dashboard" class="back-link">Back to Dashboard</a>
+        <a th:href="@{/dashboard}" class="back-link">Обратно към таблото</a>
     </div>
 </body>
 </html>
-

@@ -1,12 +1,110 @@
 <!doctype html>
-<html lang="en">
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Info</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Информация - ControlCards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .info-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .features {
+            margin-top: 30px;
+        }
+        .features h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .features li {
+            padding: 8px 0;
+            color: #666;
+            border-bottom: 1px solid #eee;
+        }
+        .features li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+        }
+        .back-link {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .back-link a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .back-link a:hover {
+            background: #764ba2;
+        }
+    </style>
 </head>
 <body>
-  <h1>About ControlCards</h1>
-  <p>ControlCards helps manage work cards across workshops.</p>
+    <div class="info-container">
+        <h1>За ControlCards</h1>
+        <p>
+            ControlCards е цялостна система за управление на работни карти, предназначена 
+            за оптимизиране на управлението на работните процеси в цехове, работни центрове 
+            и производствени екипи.
+        </p>
+        <p>
+            Системата улеснява ефективната комуникация и проследяване на работни поръчки 
+            между работници, техници, мениджъри и администратори.
+        </p>
+        
+        <div class="features">
+            <h2>Основни функции</h2>
+            <ul>
+                <li>Удостоверяване на потребители и контрол на достъп базиран на роли</li>
+                <li>Създаване и управление на работни карти</li>
+                <li>Администриране на цехове и работни центрове</li>
+                <li>Проследяване на статуси в реално време</li>
+                <li>Изчерпателно регистриране на дейности</li>
+                <li>Изгледи на табло базирани на роли</li>
+            </ul>
+        </div>
+        
+        <div class="back-link">
+            <a th:href="@{/}">Обратно към началото</a>
+        </div>
+    </div>
 </body>
 </html>

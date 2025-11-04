@@ -94,6 +94,15 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    public List<CardViewDTO> getAllCards() {
+        log.debug("Retrieving all cards");
+        List<Card> cards = cardRepository.findAll();
+        return cards.stream()
+                .map(this::convertToViewDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void extendCard(UUID cardId, User currentUser) {
         log.info("Extending card ID: {} by user: {}", cardId, currentUser.getUsername());
         

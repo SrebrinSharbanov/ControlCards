@@ -1,12 +1,223 @@
 <!doctype html>
-<html lang="en">
+<html lang="bg" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Табло - ControlCards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+        }
+        .user-info {
+            text-align: right;
+            color: #666;
+        }
+        .user-info strong {
+            color: #667eea;
+        }
+        .logout-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .card ul {
+            list-style: none;
+        }
+        .card li {
+            margin: 12px 0;
+        }
+        .card a {
+            display: block;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+        .card a:hover {
+            background: #764ba2;
+        }
+        .quick-actions {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .quick-actions h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .action-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 500;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
 <body>
-  <h1>Dashboard</h1>
-  <p>Welcome to your dashboard.</p>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Табло</h1>
+            </div>
+            <div class="user-info">
+                <p>Потребител: <strong sec:authentication="name"></strong></p>
+                <p>Роля: <strong sec:authentication="authorities"></strong></p>
+                <form th:action="@{/logout}" th:method="post" style="display: inline;">
+                    <button type="submit" class="logout-btn">Изход</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Admin Section -->
+            <div class="card" sec:authorize="hasRole('ADMIN')">
+                <h2>Администрация</h2>
+                <ul>
+                    <li><a th:href="@{/admin/users}">Управление на потребители</a></li>
+                    <li><a th:href="@{/admin/workshops}">Управление на цехове</a></li>
+                    <li><a th:href="@{/admin/workcenters}">Управление на работни центрове</a></li>
+                    <li><a th:href="@{/admin/logs}">Преглед на логове</a></li>
+                    <li><a th:href="@{/cards/all}">Преглед на всички карти</a></li>
+                </ul>
+            </div>
+
+            <!-- Production Manager Section - Управление и затваряне на карти -->
+            <div class="card" sec:authorize="hasRole('PRODUCTION_MANAGER')">
+                <h2>Управление на производството</h2>
+                <ul>
+                    <li><a th:href="@{/cards/extended}">Преглед на разширени карти</a></li>
+                    <li><a th:href="@{/cards/extended}">Затваряне на карти</a></li>
+                    <li><a th:href="@{/cards/all}">Преглед на всички карти</a></li>
+                </ul>
+            </div>
+
+            <!-- Manager Section - Само преглед -->
+            <div class="card" sec:authorize="hasRole('MANAGER')">
+                <h2>Преглед</h2>
+                <ul>
+                    <li><a th:href="@{/cards/extended}">Преглед на разширени карти</a></li>
+                    <li><a th:href="@{/cards/all}">Преглед на всички карти</a></li>
+                </ul>
+            </div>
+
+            <!-- Technician Section -->
+            <div class="card" sec:authorize="hasRole('TECHNICIAN')">
+                <h2>Техник</h2>
+                <ul>
+                    <li><a th:href="@{/cards/created}">Преглед на нови карти</a></li>
+                    <li><a th:href="@{/cards/created}">Разширяване на карти</a></li>
+                </ul>
+            </div>
+
+            <!-- Worker Section -->
+            <div class="card" sec:authorize="hasRole('WORKER')">
+                <h2>Работник</h2>
+                <ul>
+                    <li><a th:href="@{/cards/new}">Създаване на нова карта</a></li>
+                    <li><a th:href="@{/cards/created}">Преглед на нови карти</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2>Бързи действия</h2>
+            <div class="actions-grid">
+                <a th:href="@{/cards/new}" class="action-btn" sec:authorize="hasRole('WORKER')">
+                    Създай нова карта
+                </a>
+                <a th:href="@{/cards/created}" class="action-btn" sec:authorize="hasRole('TECHNICIAN')">
+                    Преглед на нови карти
+                </a>
+                <a th:href="@{/cards/extended}" class="action-btn" sec:authorize="hasAnyRole('MANAGER', 'PRODUCTION_MANAGER')">
+                    Преглед на разширени карти
+                </a>
+                <a th:href="@{/cards/all}" class="action-btn" sec:authorize="hasAnyRole('ADMIN', 'PRODUCTION_MANAGER', 'MANAGER')">
+                    Преглед на всички карти
+                </a>
+                <a th:href="@{/info}" class="action-btn">
+                    Информация
+                </a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

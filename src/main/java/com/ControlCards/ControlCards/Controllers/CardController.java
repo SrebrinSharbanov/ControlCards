@@ -116,23 +116,33 @@ public class CardController {
     }
 
     @GetMapping("/extended")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'PRODUCTION_MANAGER')")
     public ModelAndView listExtendedCards() {
-        log.debug("Listing extended cards for manager");
+        log.debug("Listing extended cards for manager/production manager");
         List<CardViewDTO> extendedCards = cardService.getExtendedCards();
         ModelAndView modelAndView = new ModelAndView("manager-cards");
         modelAndView.addObject("cards", extendedCards);
         return modelAndView;
     }
 
+    @GetMapping("/all")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PRODUCTION_MANAGER', 'MANAGER')")
+    public ModelAndView listAllCards() {
+        log.debug("Listing all cards for admin/manager/production manager");
+        List<CardViewDTO> allCards = cardService.getAllCards();
+        ModelAndView modelAndView = new ModelAndView("manager-cards");
+        modelAndView.addObject("cards", allCards);
+        return modelAndView;
+    }
+
     @PostMapping("/close/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('PRODUCTION_MANAGER')")
     public String closeCard(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
         User currentUser = userService.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + userDetails.getUsername()));
         
         cardService.closeCard(id, currentUser);
-        log.info("Card {} closed by manager: {}", id, currentUser.getUsername());
+        log.info("Card {} closed by production manager: {}", id, currentUser.getUsername());
         
         return "redirect:/cards/extended";
     }

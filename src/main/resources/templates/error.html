@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<html lang="bg" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -81,7 +81,8 @@
             </ul>
         </div>
         
-        <a th:href="@{/dashboard}" class="back-link">Обратно към таблото</a>
+        <a th:href="@{/dashboard}" class="back-link" sec:authorize="isAuthenticated()">Обратно към таблото</a>
+        <a th:href="@{/login}" class="back-link" sec:authorize="!isAuthenticated()">Обратно към началото</a>
     </div>
 </body>
 </html>

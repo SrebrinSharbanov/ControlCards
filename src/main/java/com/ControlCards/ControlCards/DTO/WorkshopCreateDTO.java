@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class WorkshopCreateDTO {
     
-    @NotBlank(message = "Workshop name is required")
-    @Size(max = 100, message = "Workshop name must not exceed 100 characters")
+    @NotBlank(message = "Името на цеха е задължително")
+    @Size(max = 100, message = "Името на цеха не може да бъде повече от 100 символа")
     private String name;
     
-    @Size(max = 500, message = "Description must not exceed 500 characters")
+    @Size(max = 500, message = "Описанието не може да бъде повече от 500 символа")
     private String description;
 }
 

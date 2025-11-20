@@ -6,6 +6,8 @@ import com.ControlCards.ControlCards.Service.ArchivedCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ArchivedCardServiceImpl implements ArchivedCardService {
 
@@ -19,6 +21,11 @@ public class ArchivedCardServiceImpl implements ArchivedCardService {
     @Override
     public ArchivedCard save(ArchivedCard archivedCard) {
         return archivedCardRepository.save(archivedCard);
+    }
+
+    @Override
+    public List<ArchivedCard> findAll() {
+        return archivedCardRepository.findAll();
     }
 }
 

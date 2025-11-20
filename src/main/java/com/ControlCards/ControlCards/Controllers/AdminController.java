@@ -1,12 +1,13 @@
 package com.ControlCards.ControlCards.Controllers;
 
 import com.ControlCards.ControlCards.Exception.UserNotFoundException;
+import com.ControlCards.ControlCards.Exception.WorkCenterNotFoundException;
 import com.ControlCards.ControlCards.Exception.WorkshopNotFoundException;
 import com.ControlCards.ControlCards.Model.LogEntry;
 import com.ControlCards.ControlCards.Model.User;
 import com.ControlCards.ControlCards.Model.WorkCenter;
 import com.ControlCards.ControlCards.Model.Workshop;
-import com.ControlCards.ControlCards.Service.LogEntryService;
+import com.ControlCards.ControlCards.Service.Impl.LogEntryService;
 import com.ControlCards.ControlCards.Service.UserService;
 import com.ControlCards.ControlCards.Service.WorkCenterService;
 import com.ControlCards.ControlCards.Service.WorkshopService;
@@ -21,9 +22,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -48,8 +51,6 @@ public class AdminController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // ========== HELPER METHODS ==========
-    
     private void logAction(UserDetails userDetails, String action) {
         try {
             User currentUser = userService.findByUsername(userDetails.getUsername())
@@ -61,8 +62,6 @@ public class AdminController {
         }
     }
 
-    // ========== USER MANAGEMENT ==========
-    
     @GetMapping("/users")
     public ModelAndView listUsers() {
         log.debug("Listing all users");
@@ -78,66 +77,135 @@ public class AdminController {
         ModelAndView modelAndView = new ModelAndView("admin-users-form");
         modelAndView.addObject("user", new User());
         modelAndView.addObject("roles", Role.values());
+        modelAndView.addObject("allWorkshops", workshopService.findAll());
         return modelAndView;
     }
 
     @PostMapping("/users/new")
-    public String createUser(@ModelAttribute User user, @AuthenticationPrincipal UserDetails userDetails) {
+    public String createUser(@ModelAttribute User user, 
+                             @RequestParam(required = false) List<UUID> workshopIds,
+                             @RequestParam(required = false) Boolean selectAll,
+                             @AuthenticationPrincipal UserDetails userDetails) {
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+        
+        if (Boolean.TRUE.equals(selectAll)) {
+            user.setWorkshops(workshopService.findAll());
+        } else if (workshopIds != null && !workshopIds.isEmpty()) {
+            List<Workshop> workshops = workshopIds.stream()
+                    .map(workshopId -> workshopService.findById(workshopId))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+            user.setWorkshops(workshops);
+        } else {
+            user.setWorkshops(new ArrayList<>());
+        }
+        
         userService.save(user);
         log.info("User created: {}", user.getUsername());
-        logAction(userDetails, "Created new user: " + user.getUsername());
+        logAction(userDetails, "Създаден нов потребител: " + user.getUsername());
         return "redirect:/admin/users";
     }
 
     @GetMapping("/users/edit/{id}")
     public ModelAndView showEditUserForm(@PathVariable UUID id) {
         Optional<User> userOpt = userService.findById(id);
-        if (userOpt.isPresent()) {
+        if (userOpt.isEmpty()) {
+            log.warn("Attempt to edit non-existent user with ID: {}", id);
+            return new ModelAndView("redirect:/admin/users");
+        }
+        
+        Optional<User> userWithWorkshops = userService.findByUsernameWithWorkshops(userOpt.get().getUsername());
+        if (userWithWorkshops.isPresent()) {
             ModelAndView modelAndView = new ModelAndView("admin-users-form");
-            modelAndView.addObject("user", userOpt.get());
+            modelAndView.addObject("user", userWithWorkshops.get());
             modelAndView.addObject("roles", Role.values());
+            modelAndView.addObject("allWorkshops", workshopService.findAll());
             return modelAndView;
         }
+        log.warn("User with ID {} found but could not load with workshops", id);
         return new ModelAndView("redirect:/admin/users");
     }
 
     @PostMapping("/users/edit/{id}")
-    public String updateUser(@PathVariable UUID id, @ModelAttribute User user, @AuthenticationPrincipal UserDetails userDetails) {
-        Optional<User> existingUserOpt = userService.findById(id);
-        if (existingUserOpt.isPresent()) {
-            User existingUser = existingUserOpt.get();
-            String oldUsername = existingUser.getUsername();
-            existingUser.setUsername(user.getUsername());
-            existingUser.setFirstName(user.getFirstName());
-            existingUser.setLastName(user.getLastName());
-            existingUser.setRole(user.getRole());
-            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-                existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+    public String updateUser(@PathVariable UUID id, @ModelAttribute User user,
+                             @RequestParam(required = false) List<UUID> workshopIds,
+                             @RequestParam(required = false) Boolean selectAll,
+                             @AuthenticationPrincipal UserDetails userDetails) {
+        User existingUser = userService.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+        
+        Optional<User> existingUserWithWorkshops = userService.findByUsernameWithWorkshops(existingUser.getUsername());
+        if (existingUserWithWorkshops.isEmpty()) {
+            throw new UserNotFoundException("User not found with username: " + existingUser.getUsername());
+        }
+        
+        existingUser = existingUserWithWorkshops.get();
+        String oldUsername = existingUser.getUsername();
+        existingUser.setUsername(user.getUsername());
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setRole(user.getRole());
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        
+        if (Boolean.TRUE.equals(selectAll)) {
+            existingUser.setWorkshops(workshopService.findAll());
+        } else if (workshopIds != null && !workshopIds.isEmpty()) {
+            List<Workshop> workshops = workshopIds.stream()
+                    .map(workshopId -> workshopService.findById(workshopId))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+            existingUser.setWorkshops(workshops);
+        } else {
+            existingUser.setWorkshops(new ArrayList<>());
+        }
+        
+        userService.save(existingUser);
+        log.info("User updated: {} -> {}", oldUsername, user.getUsername());
+        logAction(userDetails, "Обновен потребител: " + oldUsername + " -> " + user.getUsername());
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/deactivate/{id}")
+    public String deactivateUser(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+        if (userService.existsById(id)) {
+            Optional<User> userOpt = userService.findById(id);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                if (user.getRole() == Role.ADMIN) {
+                    log.warn("Attempt to deactivate ADMIN user blocked: {}", user.getUsername());
+                    return "redirect:/admin/users";
+                }
+                String username = user.getUsername();
+                try {
+                    userService.deactivate(id);
+                    log.info("User deactivated: {}", username);
+                    logAction(userDetails, "Деактивиран потребител: " + username);
+                } catch (RuntimeException e) {
+                    log.error("Failed to deactivate user {}: {}", username, e.getMessage());
+                }
             }
-            userService.save(existingUser);
-            log.info("User updated: {} -> {}", oldUsername, user.getUsername());
-            logAction(userDetails, "Updated user: " + oldUsername + " -> " + user.getUsername());
         }
         return "redirect:/admin/users";
     }
 
-    @DeleteMapping("/users/delete/{id}")
-    public String deleteUser(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping("/users/activate/{id}")
+    public String activateUser(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
         if (userService.existsById(id)) {
             Optional<User> userOpt = userService.findById(id);
             String username = userOpt.map(User::getUsername).orElse("Unknown");
-            userService.deleteById(id);
-            log.info("User deleted: {}", username);
-            logAction(userDetails, "Deleted user: " + username);
+            userService.activate(id);
+            log.info("User activated: {}", username);
+            logAction(userDetails, "Активиран потребител: " + username);
         }
         return "redirect:/admin/users";
     }
 
-    // ========== WORK CENTER MANAGEMENT ==========
-    
     @GetMapping("/workcenters")
     public ModelAndView listWorkCenters() {
         log.debug("Listing all work centers");
@@ -152,7 +220,7 @@ public class AdminController {
         log.debug("Showing create work center form");
         ModelAndView modelAndView = new ModelAndView("admin-workcenters-form");
         modelAndView.addObject("workCenter", new WorkCenter());
-        List<Workshop> workshops = workshopService.findAll();
+        List<Workshop> workshops = workshopService.findAllActive();
         modelAndView.addObject("workshops", workshops);
         return modelAndView;
     }
@@ -165,59 +233,70 @@ public class AdminController {
         workCenter.setWorkshop(workshop);
         workCenterService.save(workCenter);
         log.info("Work center created: {}", workCenter.getNumber());
-        logAction(userDetails, "Created new work center: " + workCenter.getNumber());
+        logAction(userDetails, "Създаден нов работен център: " + workCenter.getNumber());
         return "redirect:/admin/workcenters";
     }
 
     @GetMapping("/workcenters/edit/{id}")
     public ModelAndView showEditWorkCenterForm(@PathVariable UUID id) {
         Optional<WorkCenter> workCenterOpt = workCenterService.findById(id);
-        if (workCenterOpt.isPresent()) {
-            ModelAndView modelAndView = new ModelAndView("admin-workcenters-form");
-            modelAndView.addObject("workCenter", workCenterOpt.get());
-            List<Workshop> workshops = workshopService.findAll();
-            modelAndView.addObject("workshops", workshops);
-            return modelAndView;
+        if (workCenterOpt.isEmpty()) {
+            log.warn("Attempt to edit non-existent work center with ID: {}", id);
+            return new ModelAndView("redirect:/admin/workcenters");
         }
-        return new ModelAndView("redirect:/admin/workcenters");
+        
+        ModelAndView modelAndView = new ModelAndView("admin-workcenters-form");
+        modelAndView.addObject("workCenter", workCenterOpt.get());
+        List<Workshop> workshops = workshopService.findAllActive();
+        modelAndView.addObject("workshops", workshops);
+        return modelAndView;
     }
 
     @PostMapping("/workcenters/edit/{id}")
     public String updateWorkCenter(@PathVariable UUID id, @ModelAttribute WorkCenter workCenter, 
                                    @RequestParam UUID workshopId, @AuthenticationPrincipal UserDetails userDetails) {
-        Optional<WorkCenter> existingWorkCenterOpt = workCenterService.findById(id);
-        if (existingWorkCenterOpt.isPresent()) {
-            WorkCenter existingWorkCenter = existingWorkCenterOpt.get();
-            String oldNumber = existingWorkCenter.getNumber();
-            existingWorkCenter.setNumber(workCenter.getNumber());
-            existingWorkCenter.setDescription(workCenter.getDescription());
-            existingWorkCenter.setMachineType(workCenter.getMachineType());
-            
-            Workshop workshop = workshopService.findById(workshopId)
-                    .orElseThrow(() -> new WorkshopNotFoundException("Workshop not found: " + workshopId));
-            existingWorkCenter.setWorkshop(workshop);
-            
-            workCenterService.save(existingWorkCenter);
-            log.info("Work center updated: {} -> {}", oldNumber, workCenter.getNumber());
-            logAction(userDetails, "Updated work center: " + oldNumber + " -> " + workCenter.getNumber());
-        }
+        WorkCenter existingWorkCenter = workCenterService.findById(id)
+                .orElseThrow(() -> new WorkCenterNotFoundException("Work center not found with ID: " + id));
+        
+        String oldNumber = existingWorkCenter.getNumber();
+        existingWorkCenter.setNumber(workCenter.getNumber());
+        existingWorkCenter.setDescription(workCenter.getDescription());
+        existingWorkCenter.setMachineType(workCenter.getMachineType());
+        
+        Workshop workshop = workshopService.findById(workshopId)
+                .orElseThrow(() -> new WorkshopNotFoundException("Workshop not found: " + workshopId));
+        existingWorkCenter.setWorkshop(workshop);
+        
+        workCenterService.save(existingWorkCenter);
+        log.info("Work center updated: {} -> {}", oldNumber, workCenter.getNumber());
+        logAction(userDetails, "Обновен работен център: " + oldNumber + " -> " + workCenter.getNumber());
         return "redirect:/admin/workcenters";
     }
 
-    @DeleteMapping("/workcenters/delete/{id}")
-    public String deleteWorkCenter(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping("/workcenters/deactivate/{id}")
+    public String deactivateWorkCenter(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
         if (workCenterService.existsById(id)) {
             Optional<WorkCenter> workCenterOpt = workCenterService.findById(id);
             String workCenterNumber = workCenterOpt.map(WorkCenter::getNumber).orElse("Unknown");
-            workCenterService.deleteById(id);
-            log.info("Work center deleted: {}", workCenterNumber);
-            logAction(userDetails, "Deleted work center: " + workCenterNumber);
+            workCenterService.deactivate(id);
+            log.info("Work center deactivated: {}", workCenterNumber);
+            logAction(userDetails, "Деактивиран работен център: " + workCenterNumber);
         }
         return "redirect:/admin/workcenters";
     }
 
-    // ========== WORKSHOP MANAGEMENT ==========
-    
+    @PostMapping("/workcenters/activate/{id}")
+    public String activateWorkCenter(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+        if (workCenterService.existsById(id)) {
+            Optional<WorkCenter> workCenterOpt = workCenterService.findById(id);
+            String workCenterNumber = workCenterOpt.map(WorkCenter::getNumber).orElse("Unknown");
+            workCenterService.activate(id);
+            log.info("Work center activated: {}", workCenterNumber);
+            logAction(userDetails, "Активиран работен център: " + workCenterNumber);
+        }
+        return "redirect:/admin/workcenters";
+    }
+
     @GetMapping("/workshops")
     public ModelAndView listWorkshops() {
         log.debug("Listing all workshops");
@@ -239,50 +318,61 @@ public class AdminController {
     public String createWorkshop(@ModelAttribute Workshop workshop, @AuthenticationPrincipal UserDetails userDetails) {
         workshopService.save(workshop);
         log.info("Workshop created: {}", workshop.getName());
-        logAction(userDetails, "Created new workshop: " + workshop.getName());
+        logAction(userDetails, "Създаден нов цех: " + workshop.getName());
         return "redirect:/admin/workshops";
     }
 
     @GetMapping("/workshops/edit/{id}")
     public ModelAndView showEditWorkshopForm(@PathVariable UUID id) {
         Optional<Workshop> workshopOpt = workshopService.findById(id);
-        if (workshopOpt.isPresent()) {
-            ModelAndView modelAndView = new ModelAndView("admin-workshops-form");
-            modelAndView.addObject("workshop", workshopOpt.get());
-            return modelAndView;
+        if (workshopOpt.isEmpty()) {
+            log.warn("Attempt to edit non-existent workshop with ID: {}", id);
+            return new ModelAndView("redirect:/admin/workshops");
         }
-        return new ModelAndView("redirect:/admin/workshops");
+        
+        ModelAndView modelAndView = new ModelAndView("admin-workshops-form");
+        modelAndView.addObject("workshop", workshopOpt.get());
+        return modelAndView;
     }
 
     @PostMapping("/workshops/edit/{id}")
     public String updateWorkshop(@PathVariable UUID id, @ModelAttribute Workshop workshop, @AuthenticationPrincipal UserDetails userDetails) {
-        Optional<Workshop> existingWorkshopOpt = workshopService.findById(id);
-        if (existingWorkshopOpt.isPresent()) {
-            Workshop existingWorkshop = existingWorkshopOpt.get();
-            String oldName = existingWorkshop.getName();
-            existingWorkshop.setName(workshop.getName());
-            existingWorkshop.setDescription(workshop.getDescription());
-            workshopService.save(existingWorkshop);
-            log.info("Workshop updated: {} -> {}", oldName, workshop.getName());
-            logAction(userDetails, "Updated workshop: " + oldName + " -> " + workshop.getName());
-        }
+        Workshop existingWorkshop = workshopService.findById(id)
+                .orElseThrow(() -> new WorkshopNotFoundException("Workshop not found with ID: " + id));
+        
+        String oldName = existingWorkshop.getName();
+        existingWorkshop.setName(workshop.getName());
+        existingWorkshop.setDescription(workshop.getDescription());
+        workshopService.save(existingWorkshop);
+        log.info("Workshop updated: {} -> {}", oldName, workshop.getName());
+        logAction(userDetails, "Обновен цех: " + oldName + " -> " + workshop.getName());
         return "redirect:/admin/workshops";
     }
 
-    @DeleteMapping("/workshops/delete/{id}")
-    public String deleteWorkshop(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping("/workshops/deactivate/{id}")
+    public String deactivateWorkshop(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
         if (workshopService.existsById(id)) {
             Optional<Workshop> workshopOpt = workshopService.findById(id);
             String workshopName = workshopOpt.map(Workshop::getName).orElse("Unknown");
-            workshopService.deleteById(id);
-            log.info("Workshop deleted: {}", workshopName);
-            logAction(userDetails, "Deleted workshop: " + workshopName);
+            workshopService.deactivate(id);
+            log.info("Workshop deactivated: {}", workshopName);
+            logAction(userDetails, "Деактивиран цех: " + workshopName);
         }
         return "redirect:/admin/workshops";
     }
 
-    // ========== LOGS MANAGEMENT ==========
-    
+    @PostMapping("/workshops/activate/{id}")
+    public String activateWorkshop(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+        if (workshopService.existsById(id)) {
+            Optional<Workshop> workshopOpt = workshopService.findById(id);
+            String workshopName = workshopOpt.map(Workshop::getName).orElse("Unknown");
+            workshopService.activate(id);
+            log.info("Workshop activated: {}", workshopName);
+            logAction(userDetails, "Активиран цех: " + workshopName);
+        }
+        return "redirect:/admin/workshops";
+    }
+
     @GetMapping("/logs")
     public ModelAndView listLogs() {
         log.debug("Listing all logs");

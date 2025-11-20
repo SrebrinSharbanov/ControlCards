@@ -7,10 +7,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface WorkshopService {
-    List<Workshop> findAll();
+    List<Workshop> findAll(); // Returns all workshops (including inactive) - for admin
+    List<Workshop> findAllActive(); // Returns only active workshops
     Optional<Workshop> findById(UUID id);
     Workshop save(Workshop workshop);
-    void deleteById(UUID id);
+    void deactivate(UUID id);
+    void activate(UUID id);
     boolean existsById(UUID id);
 }
 

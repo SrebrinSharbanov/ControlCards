@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle ?: 'Архивирани карти'} + ' - ControlCards'">Архивирани карти - ControlCards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+        }
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .empty-state h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        thead {
+            background: #667eea;
+            color: white;
+        }
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .description-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .detailed-description-cell {
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-closed {
+            background: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 th:text="${pageTitle ?: 'Архивирани карти'}">Архивирани карти</h1>
+            <div>
+                <a th:href="@{/cards/closed}" class="btn btn-secondary" style="margin-right: 10px;">Затворени карти</a>
+                <a th:href="@{/dashboard}" class="btn btn-secondary">Обратно към таблото</a>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div th:if="${cards == null or cards.isEmpty()}" class="empty-state">
+                <h2>Няма архивирани карти</h2>
+                <p>В момента няма карти, които са били архивирани.</p>
+            </div>
+
+            <table th:if="${cards != null and !cards.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Цех</th>
+                        <th>Работен център</th>
+                        <th>Смяна</th>
+                        <th>Кратко описание</th>
+                        <th>Подробно описание</th>
+                        <th>Време за разрешаване</th>
+                        <th>Архивирана от</th>
+                        <th>Архивирана на</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="card : ${cards}">
+                        <td th:text="${card.workshopName}"></td>
+                        <td th:text="${card.workCenterName}"></td>
+                        <td th:text="${card.shift.displayName}"></td>
+                        <td class="description-cell" th:text="${card.shortDescription}"></td>
+                        <td class="detailed-description-cell" th:text="${card.detailedDescription != null ? card.detailedDescription : 'Няма'}"></td>
+                        <td th:text="${card.resolutionDurationMinutes != null ? (card.resolutionDurationMinutes + ' мин') : 'Няма'}"></td>
+                        <td th:text="${card.extendedByUsername != null ? card.extendedByUsername : 'Няма'}"></td>
+                        <td th:text="${card.closedAt != null ? #temporals.format(card.closedAt, 'dd.MM.yyyy HH:mm') : 'Няма'}"></td>
+                        <td>
+                            <span class="status-badge status-closed">Архивирана</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+

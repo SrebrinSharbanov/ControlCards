@@ -4,11 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.validation.FieldError;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +40,24 @@ public class GlobalExceptionHandler {
         
         log.error("Validation failed with {} errors", errors.size());
         return "error";
+    }
+
+    @ExceptionHandler(TypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ModelAndView handleTypeMismatchException(TypeMismatchException ex) {
+        log.warn("Type mismatch error occurred: {} for field: {}", ex.getMessage(), ex.getPropertyName());
+
+        String errorMessage = "Моля, попълнете всички задължителни полета";
+        if (ex.getMessage() != null && ex.getMessage().contains("UUID")) {
+            errorMessage = "Моля, изберете валидна стойност за " + (ex.getPropertyName() != null ? ex.getPropertyName() : "полето");
+        } else if (ex.getMessage() != null && ex.getMessage().contains("Shift")) {
+            errorMessage = "Моля, изберете валидна смяна";
+        }
+        
+        ModelAndView modelAndView = new ModelAndView("error");
+        modelAndView.addObject("errorMessage", errorMessage);
+        modelAndView.addObject("errorTitle", "Грешка при обработка на формата");
+        return modelAndView;
     }
 
     @ExceptionHandler(CardNotFoundException.class)
@@ -86,13 +108,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleNoResourceFoundException(NoResourceFoundException ex, Model model) {
-        // Silently ignore favicon.ico and other static resource errors
+
         if (ex.getMessage() != null && ex.getMessage().contains("favicon.ico")) {
-            return null; // Return null to indicate no view should be rendered
+            return null;
         }
         log.debug("Resource not found: {}", ex.getMessage());
         model.addAttribute("errorMessage", "Заявеният ресурс не е намерен.");
         model.addAttribute("errorTitle", "Ресурс не е намерен");
+        return "error";
+    }
+
+    @ExceptionHandler({AuthorizationDeniedException.class, AccessDeniedException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public String handleAccessDeniedException(Exception ex, Model model) {
+        log.warn("Access denied: {}", ex.getMessage());
+        model.addAttribute("errorMessage", "Нямате права за достъп до този ресурс.");
+        model.addAttribute("errorTitle", "Достъпът е отказан");
         return "error";
     }
 

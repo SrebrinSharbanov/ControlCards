@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Моят профил - ControlCards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .form-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-group input[type="password"] {
+            font-family: 'Courier New', monospace;
+        }
+        .form-group .error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+        }
+        .btn-primary:hover {
+            background: #764ba2;
+        }
+        .info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+        .info-section p {
+            margin: 8px 0;
+            color: #666;
+        }
+        .info-section strong {
+            color: #333;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Моят профил</h1>
+            </div>
+            <div>
+                <a th:href="@{/dashboard}" class="btn btn-secondary">Назад</a>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div th:if="${success}" class="success-message" th:text="${success}"></div>
+
+            <div class="info-section">
+                <p><strong>Потребителско име:</strong> <span th:text="${user.username}"></span></p>
+                <p><strong>Роля:</strong> <span th:text="${user.role}"></span></p>
+            </div>
+
+            <form th:action="@{/profile}" th:object="${profileDTO}" th:method="post">
+                <div class="form-group">
+                    <label for="firstName">Име *</label>
+                    <input type="text" id="firstName" th:field="*{firstName}" required maxlength="50" />
+                    <div class="error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Фамилия *</label>
+                    <input type="text" id="lastName" th:field="*{lastName}" required maxlength="50" />
+                    <div class="error" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Нова парола (оставете празно, за да не променяте)</label>
+                    <input type="password" id="password" th:field="*{password}" maxlength="255" />
+                    <div class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Запази промените</button>
+                    <a th:href="@{/dashboard}" class="btn btn-secondary">Отказ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+

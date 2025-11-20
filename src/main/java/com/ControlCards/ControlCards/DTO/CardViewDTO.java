@@ -21,8 +21,10 @@ public class CardViewDTO {
     private Integer resolutionDurationMinutes;
     private CardStatus status;
     private String createdByUsername;
+    private String createdByName; // Име и фамилия
     private String updatedByUsername;
     private String extendedByUsername;
+    private String extendedByName; // Име и фамилия
     private String closedByUsername;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -7,10 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
+@EnableFeignClients
+@EnableScheduling
 @Slf4j
 public class ControlCardsApplication {
 
@@ -21,6 +26,7 @@ public class ControlCardsApplication {
 	}
 
 	@Bean
+	@Profile("!test")
 	public CommandLineRunner initAdmin(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		return args -> {
 			log.info("Initializing admin user...");
@@ -32,10 +38,18 @@ public class ControlCardsApplication {
 				admin.setFirstName("Admin");
 				admin.setLastName("Administrator");
 				admin.setRole(Role.ADMIN);
+				admin.setActive(true);
 				userRepository.save(admin);
 				
 				log.info("Admin user created successfully: {}", admin.getUsername());
 			} else {
+				userRepository.findByUsername("admin").ifPresent(admin -> {
+					if (admin.getRole() == Role.ADMIN) {
+						admin.setActive(true);
+						userRepository.save(admin);
+						log.info("Admin user ensured to be active: {}", admin.getUsername());
+					}
+				});
 				log.info("Admin user already exists, skipping creation");
 			}
 		};

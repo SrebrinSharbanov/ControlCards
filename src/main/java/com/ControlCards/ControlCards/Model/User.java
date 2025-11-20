@@ -36,6 +36,9 @@ public class User extends BaseEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "active", nullable = false)
+    private Boolean active = true;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_workshops",
@@ -44,9 +47,9 @@ public class User extends BaseEntity {
     )
     private List<Workshop> workshops;
 
-    // Constructors
     public User() {
         this.workshops = new ArrayList<>();
         this.createdAt = LocalDateTime.now();
+        this.active = true;
     }
 }

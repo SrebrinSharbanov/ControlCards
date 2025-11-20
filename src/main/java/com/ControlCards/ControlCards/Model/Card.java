@@ -69,13 +69,11 @@ public class Card extends BaseEntity {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
-    // Constructors
     public Card() {
         this.createdAt = LocalDateTime.now();
         this.status = CardStatus.CREATED;
     }
 
-    // Workflow methods
     public void extend(User user) {
         this.status = CardStatus.EXTENDED;
         this.extendedBy = user;

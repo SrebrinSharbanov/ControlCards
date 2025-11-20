@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit ? 'Редактиране на график' : 'Създаване на график'} + ' - ControlCards'">Създаване на график - ControlCards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+        }
+        .form-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .error-container {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            border: 1px solid #f5c6cb;
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 th:text="${isEdit ? 'Редактиране на график' : 'Създаване на график'}">Създаване на график</h1>
+            <a th:href="@{/schedules}" class="btn btn-secondary">Обратно</a>
+        </div>
+
+        <div class="form-card">
+            <div th:if="${error != null and !error.isEmpty()}" class="error-container">
+                <strong>Грешка:</strong> <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="${isEdit ? '/schedules/edit/' + schedule.id : '/schedules/new'}" 
+                  th:object="${schedule}" 
+                  th:method="post">
+                <div class="form-group">
+                    <label for="date">Дата <span style="color: red;">*</span></label>
+                    <input type="date" id="date" th:field="*{date}" required>
+                    <div th:if="${#fields.hasErrors('date')}" th:errors="*{date}" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="shift">Смяна <span style="color: red;">*</span></label>
+                    <select id="shift" th:field="*{shift}" required>
+                        <option value="">-- Избери смяна --</option>
+                        <option value="1">Първа (1)</option>
+                        <option value="2">Втора (2)</option>
+                        <option value="3">Трета (3)</option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('shift')}" th:errors="*{shift}" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="workCenterId">Работен център <span style="color: red;">*</span></label>
+                    <select id="workCenterId" th:field="*{workCenterId}" required>
+                        <option value="">-- Избери работен център --</option>
+                        <option th:each="workCenter : ${workCenters}"
+                                th:value="${workCenter.id}"
+                                th:selected="${schedule.workCenterId != null and schedule.workCenterId == workCenter.id}"
+                                th:text="${workCenter.number + ' - ' + workCenter.description}"></option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('workCenterId')}" th:errors="*{workCenterId}" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="productionOrder">Производствена поръчка <span style="color: red;">*</span></label>
+                    <input type="text" id="productionOrder" th:field="*{productionOrder}" 
+                           placeholder="Например: 1441716" maxlength="50" required>
+                    <div th:if="${#fields.hasErrors('productionOrder')}" th:errors="*{productionOrder}" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="product">Продукт</label>
+                    <input type="text" id="product" th:field="*{product}" 
+                           placeholder="Например: 80003214" maxlength="50">
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Количество</label>
+                    <input type="number" id="quantity" th:field="*{quantity}" 
+                           placeholder="Например: 56000" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="timeInMinutes">Време (минути)</label>
+                    <input type="number" id="timeInMinutes" th:field="*{timeInMinutes}" 
+                           placeholder="Например: 135" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="salesOrder">Поръчка за продажба</label>
+                    <input type="text" id="salesOrder" th:field="*{salesOrder}" 
+                           placeholder="Например: 40052021" maxlength="50">
+                </div>
+
+                <div class="form-group">
+                    <label for="item">Ред</label>
+                    <input type="number" id="item" th:field="*{item}" 
+                           placeholder="Например: 10" min="0">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" th:text="${isEdit ? 'Запази промените' : 'Създай график'}">Създай график</button>
+                    <a th:href="@{/schedules}" class="btn btn-secondary">Отказ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+

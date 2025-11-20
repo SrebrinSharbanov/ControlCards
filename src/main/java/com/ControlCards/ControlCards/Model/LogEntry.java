@@ -24,7 +24,6 @@ public class LogEntry extends BaseEntity {
     @Column(name = "description", nullable = false, length = 1000)
     private String description;
 
-    // Constructors
     public LogEntry() {
         this.createdAt = LocalDateTime.now();
     }

@@ -14,17 +14,17 @@ import java.util.UUID;
 @AllArgsConstructor
 public class WorkCenterCreateDTO {
     
-    @NotBlank(message = "Work center number is required")
-    @Size(max = 5, message = "Work center number must not exceed 5 characters")
+    @NotBlank(message = "Номерът на работния център е задължителен")
+    @Size(max = 5, message = "Номерът на работния център не може да бъде повече от 5 символа")
     private String number;
     
-    @Size(max = 500, message = "Description must not exceed 500 characters")
+    @Size(max = 500, message = "Описанието не може да бъде повече от 500 символа")
     private String description;
     
-    @Size(max = 100, message = "Machine type must not exceed 100 characters")
+    @Size(max = 100, message = "Типът на машината не може да бъде повече от 100 символа")
     private String machineType;
     
-    @NotNull(message = "Workshop is required")
+    @NotNull(message = "Цехът е задължителен")
     private UUID workshopId;
 }
 

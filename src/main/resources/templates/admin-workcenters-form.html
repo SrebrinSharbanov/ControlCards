@@ -1,62 +1,188 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work Center Form</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="|${workCenter.id == null ? 'Създаване на работен център' : 'Редактиране на работен център'} - ControlCards|"></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .form-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+        }
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1 th:text="${workCenter.id == null ? 'Create Work Center' : 'Edit Work Center'}">Work Center Form</h1>
-    <form th:action="@{/admin/workcenters/new}" th:if="${workCenter.id == null}" th:object="${workCenter}" th:method="post">
-        <div>
-            <label>Number</label>
-            <input type="text" th:field="*{number}"/>
+    <div class="container">
+        <div class="header">
+            <h1 th:text="${workCenter.id == null ? 'Създаване на работен център' : 'Редактиране на работен център'}">Форма за работен център</h1>
+            <a th:href="@{/admin/workcenters}" class="btn btn-secondary">Отказ</a>
         </div>
-        <div>
-            <label>Description</label>
-            <textarea th:field="*{description}"></textarea>
+
+        <div class="form-card">
+            <form th:action="@{/admin/workcenters/new}" th:if="${workCenter.id == null}" th:object="${workCenter}" th:method="post">
+                <div class="form-group">
+                    <label for="number">Номер *</label>
+                    <input type="text" id="number" th:field="*{number}" required />
+                    <div class="error-message" th:if="${#fields.hasErrors('number')}" th:errors="*{number}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="description">Описание</label>
+                    <textarea id="description" th:field="*{description}" placeholder="Въведете описание на работния център..."></textarea>
+                    <div class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="machineType">Тип машина</label>
+                    <input type="text" id="machineType" th:field="*{machineType}" />
+                    <div class="error-message" th:if="${#fields.hasErrors('machineType')}" th:errors="*{machineType}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="workshopId">Цех *</label>
+                    <select id="workshopId" name="workshopId" required>
+                        <option value="">Избери цех</option>
+                        <option th:each="workshop : ${workshops}" 
+                                th:value="${workshop.id}" 
+                                th:text="${workshop.name}"></option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Запази</button>
+                    <a th:href="@{/admin/workcenters}" class="btn btn-secondary">Отказ</a>
+                </div>
+            </form>
+
+            <form th:action="@{/admin/workcenters/edit/{id}(id=${workCenter.id})}" th:if="${workCenter.id != null}" th:object="${workCenter}" th:method="post">
+                <div class="form-group">
+                    <label for="number-edit">Номер *</label>
+                    <input type="text" id="number-edit" th:field="*{number}" required />
+                    <div class="error-message" th:if="${#fields.hasErrors('number')}" th:errors="*{number}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="description-edit">Описание</label>
+                    <textarea id="description-edit" th:field="*{description}" placeholder="Въведете описание на работния център..."></textarea>
+                    <div class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="machineType-edit">Тип машина</label>
+                    <input type="text" id="machineType-edit" th:field="*{machineType}" />
+                    <div class="error-message" th:if="${#fields.hasErrors('machineType')}" th:errors="*{machineType}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="workshopId-edit">Цех *</label>
+                    <select id="workshopId-edit" name="workshopId" required>
+                        <option value="">Избери цех</option>
+                        <option th:each="workshop : ${workshops}" 
+                                th:value="${workshop.id}" 
+                                th:text="${workshop.name}"
+                                th:selected="${workCenter.workshop != null and workCenter.workshop.id == workshop.id}"></option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Запази промените</button>
+                    <a th:href="@{/admin/workcenters}" class="btn btn-secondary">Отказ</a>
+                </div>
+            </form>
         </div>
-        <div>
-            <label>Machine Type</label>
-            <input type="text" th:field="*{machineType}"/>
-        </div>
-        <div>
-            <label>Workshop</label>
-            <select name="workshopId" required>
-                <option value="">Select Workshop</option>
-                <option th:each="workshop : ${workshops}" 
-                        th:value="${workshop.id}" 
-                        th:text="${workshop.name}"
-                        th:selected="${workCenter.workshop != null and workCenter.workshop.id == workshop.id}"></option>
-            </select>
-        </div>
-        <button type="submit">Save</button>
-    </form>
-    <form th:action="@{/admin/workcenters/edit/{id}(id=${workCenter.id})}" th:if="${workCenter.id != null}" th:object="${workCenter}" th:method="post">
-        <div>
-            <label>Number</label>
-            <input type="text" th:field="*{number}"/>
-        </div>
-        <div>
-            <label>Description</label>
-            <textarea th:field="*{description}"></textarea>
-        </div>
-        <div>
-            <label>Machine Type</label>
-            <input type="text" th:field="*{machineType}"/>
-        </div>
-        <div>
-            <label>Workshop</label>
-            <select name="workshopId" required>
-                <option value="">Select Workshop</option>
-                <option th:each="workshop : ${workshops}" 
-                        th:value="${workshop.id}" 
-                        th:text="${workshop.name}"
-                        th:selected="${workCenter.workshop != null and workCenter.workshop.id == workshop.id}"></option>
-            </select>
-        </div>
-        <button type="submit">Save</button>
-    </form>
-    <a th:href="@{/admin/workcenters}">Cancel</a>
+    </div>
 </body>
 </html>

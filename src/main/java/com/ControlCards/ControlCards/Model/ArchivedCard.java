@@ -57,7 +57,6 @@ public class ArchivedCard extends BaseEntity {
     @JoinColumn(name = "archived_by_user_id", nullable = false)
     private User archivedBy;
 
-    // Constructors
     public ArchivedCard() {
         this.archivedAt = LocalDateTime.now();
     }

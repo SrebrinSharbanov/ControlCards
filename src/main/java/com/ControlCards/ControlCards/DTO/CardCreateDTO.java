@@ -15,22 +15,17 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CardCreateDTO {
     
-    @NotNull(message = "Workshop is required")
+    @NotNull(message = "Цехът е задължителен")
     private UUID workshopId;
     
-    @NotNull(message = "Work center is required")
+    @NotNull(message = "Работният център е задължителен")
     private UUID workCenterId;
     
-    @NotNull(message = "Shift is required")
+    @NotNull(message = "Смяната е задължителна")
     private Shift shift;
     
-    @NotBlank(message = "Short description is required")
-    @Size(max = 500, message = "Short description must not exceed 500 characters")
+    @NotBlank(message = "Краткото описание е задължително")
+    @Size(max = 500, message = "Краткото описание не трябва да надвишава 500 символа")
     private String shortDescription;
-    
-    @Size(max = 2000, message = "Detailed description must not exceed 2000 characters")
-    private String detailedDescription;
-    
-    private Integer resolutionDurationMinutes;
 }
 

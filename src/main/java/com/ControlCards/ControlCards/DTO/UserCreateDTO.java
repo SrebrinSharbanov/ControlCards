@@ -15,20 +15,20 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserCreateDTO {
     
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @NotBlank(message = "Потребителското име е задължително")
+    @Size(min = 3, max = 50, message = "Потребителското име трябва да бъде между 3 и 50 символа")
     private String username;
     
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @NotBlank(message = "Паролата е задължителна")
+    @Size(min = 6, message = "Паролата трябва да бъде поне 6 символа")
     private String password;
     
-    @NotBlank(message = "First name is required")
-    @Size(max = 50, message = "First name must not exceed 50 characters")
+    @NotBlank(message = "Името е задължително")
+    @Size(max = 50, message = "Името не може да бъде повече от 50 символа")
     private String firstName;
     
-    @NotBlank(message = "Last name is required")
-    @Size(max = 50, message = "Last name must not exceed 50 characters")
+    @NotBlank(message = "Фамилията е задължителна")
+    @Size(max = 50, message = "Фамилията не може да бъде повече от 50 символа")
     private String lastName;
     
     private Role role;

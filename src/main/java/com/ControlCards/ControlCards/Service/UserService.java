@@ -7,11 +7,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
-    List<User> findAll();
+    List<User> findAll(); // Returns all users (including inactive) - for admin
     Optional<User> findById(UUID id);
     Optional<User> findByUsername(String username);
+    Optional<User> findByUsernameWithWorkshops(String username);
     User save(User user);
-    void deleteById(UUID id);
+    void deactivate(UUID id);
+    void activate(UUID id);
     boolean existsById(UUID id);
 }
 

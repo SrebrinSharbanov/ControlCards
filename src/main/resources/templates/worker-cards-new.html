@@ -1,69 +1,201 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Card</title>
+    <title>Създаване на нова карта - ControlCards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+        }
+        .form-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-group select,
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        .form-group select:focus,
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .error-container {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            border: 1px solid #f5c6cb;
+        }
+        .error-container h3 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .error-container ul {
+            margin-left: 20px;
+        }
+        .error-container li {
+            margin: 5px 0;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Create New Card</h1>
-    
-    <div th:if="${errors != null and !errors.isEmpty()}" style="color: red; margin-bottom: 20px;">
-        <h3>Validation Errors:</h3>
-        <ul>
-            <li th:each="error : ${errors}" th:text="${error.value}"></li>
-        </ul>
+    <div class="container">
+        <div class="header">
+            <h1>Създаване на нова карта</h1>
+            <a th:href="@{/dashboard}" class="btn btn-secondary">Обратно към таблото</a>
+        </div>
+
+        <div class="form-card">
+            <div th:if="${workshops == null or workshops.isEmpty()}" class="error-container">
+                <h3>Предупреждение</h3>
+                <p>Нямате достъп до цехове. Моля, свържете се с администратор, за да бъдете свързани с цехове.</p>
+            </div>
+
+            <form th:action="@{/cards/new}" th:object="${card}" th:method="post" th:if="${workshops != null and !workshops.isEmpty()}">
+                <div class="form-group">
+                    <label for="workshopId">Цех</label>
+                    <select id="workshopId" th:field="*{workshopId}">
+                        <option value="">Изберете цех</option>
+                        <option th:each="workshop : ${workshops}" 
+                                th:value="${workshop.id}" 
+                                th:text="${workshop.name}"></option>
+                    </select>
+                    <div class="error-message" th:if="${#fields.hasErrors('workshopId')}" th:errors="*{workshopId}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="workCenterId">Работен център</label>
+                    <select id="workCenterId" th:field="*{workCenterId}" th:disabled="${workCenters == null or workCenters.isEmpty()}">
+                        <option value="">Изберете работен център</option>
+                        <optgroup th:each="workshop : ${workshops}" th:label="${workshop.name}">
+                            <option th:each="workCenter : ${workCenters}" 
+                                    th:if="${workCenter.workshop.id == workshop.id}"
+                                    th:value="${workCenter.id}" 
+                                    th:text="${workCenter.number}"></option>
+                        </optgroup>
+                    </select>
+                    <div th:if="${workCenters == null or workCenters.isEmpty()}" class="help-text" style="color: #dc3545;">
+                        Няма работни центрове налични
+                    </div>
+                    <div class="help-text">Първо изберете цех, след това работен център от съответната група</div>
+                    <div class="error-message" th:if="${#fields.hasErrors('workCenterId')}" th:errors="*{workCenterId}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="shift">Смяна</label>
+                    <select id="shift" th:field="*{shift}">
+                        <option value="">Изберете смяна</option>
+                        <option th:each="shift : ${shifts}" 
+                                th:value="${shift}" 
+                                th:text="${shift.displayName}"></option>
+                    </select>
+                    <div class="error-message" th:if="${#fields.hasErrors('shift')}" th:errors="*{shift}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="shortDescription">Кратко описание</label>
+                    <input type="text" id="shortDescription" th:field="*{shortDescription}" maxlength="500" placeholder="Въведете кратко описание на проблема..."/>
+                    <div class="help-text">Максимум 500 символа</div>
+                    <div class="error-message" th:if="${#fields.hasErrors('shortDescription')}" th:errors="*{shortDescription}"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Създай карта</button>
+                    <a th:href="@{/dashboard}" class="btn btn-secondary">Отказ</a>
+                </div>
+            </form>
+        </div>
     </div>
-    
-    <form th:action="@{/cards/new}" th:object="${card}" th:method="post">
-        <div>
-            <label>Workshop</label>
-            <select th:field="*{workshopId}">
-                <option value="">Select Workshop</option>
-                <option th:each="workshop : ${workshops}" 
-                        th:value="${workshop.id}" 
-                        th:text="${workshop.name}"></option>
-            </select>
-            <span th:if="${#fields.hasErrors('workshopId')}" th:errors="*{workshopId}" style="color: red;"></span>
-        </div>
-        <div>
-            <label>Work Center</label>
-            <select th:field="*{workCenterId}">
-                <option value="">Select Work Center</option>
-                <option th:each="workCenter : ${workCenters}" 
-                        th:value="${workCenter.id}" 
-                        th:text="${workCenter.number}"></option>
-            </select>
-            <span th:if="${#fields.hasErrors('workCenterId')}" th:errors="*{workCenterId}" style="color: red;"></span>
-        </div>
-        <div>
-            <label>Shift</label>
-            <select th:field="*{shift}">
-                <option value="">Select Shift</option>
-                <option th:each="shift : ${shifts}" 
-                        th:value="${shift}" 
-                        th:text="${shift}"></option>
-            </select>
-            <span th:if="${#fields.hasErrors('shift')}" th:errors="*{shift}" style="color: red;"></span>
-        </div>
-        <div>
-            <label>Short Description</label>
-            <input type="text" th:field="*{shortDescription}" maxlength="500"/>
-            <span th:if="${#fields.hasErrors('shortDescription')}" th:errors="*{shortDescription}" style="color: red;"></span>
-        </div>
-        <div>
-            <label>Detailed Description</label>
-            <textarea th:field="*{detailedDescription}" maxlength="2000"></textarea>
-            <span th:if="${#fields.hasErrors('detailedDescription')}" th:errors="*{detailedDescription}" style="color: red;"></span>
-        </div>
-        <div>
-            <label>Resolution Duration (minutes)</label>
-            <input type="number" th:field="*{resolutionDurationMinutes}"/>
-            <span th:if="${#fields.hasErrors('resolutionDurationMinutes')}" th:errors="*{resolutionDurationMinutes}" style="color: red;"></span>
-        </div>
-        <button type="submit">Create Card</button>
-    </form>
-    <a href="/dashboard">Back to Dashboard</a>
 </body>
 </html>
-

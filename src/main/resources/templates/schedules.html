@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Работни графици - ControlCards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+        }
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+        }
+        .search-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        .search-form h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        thead {
+            background: #667eea;
+            color: white;
+        }
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .empty-state h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .info-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #e7f3ff;
+            color: #0066cc;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .selected-info {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .selected-info strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Работни графици</h1>
+            <a th:href="@{/dashboard}" class="btn btn-secondary">Обратно към таблото</a>
+        </div>
+
+        <div class="content-card">
+            <div style="margin-bottom: 20px; text-align: right;" sec:authorize="hasAnyRole('ADMIN', 'PRODUCTION_MANAGER')">
+                <a th:href="@{/schedules/new}" class="btn btn-primary">Създай нов график</a>
+            </div>
+            
+            <div class="search-form" style="max-width: 600px; margin: 0 auto;">
+                <h3>Търсене на работни графици</h3>
+                <form th:action="@{/schedules/search}" method="get">
+                    <div class="form-group">
+                        <label for="workCenterId">Работен център (опционално):</label>
+                        <select id="workCenterId" name="workCenterId">
+                            <option value="">-- Избери работен център --</option>
+                            <option th:each="workCenter : ${workCenters}"
+                                    th:value="${workCenter.id}"
+                                    th:selected="${selectedWorkCenter != null and selectedWorkCenter.id == workCenter.id}"
+                                    th:text="${workCenter.number + ' - ' + workCenter.description}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Дата (опционално):</label>
+                        <input type="date" id="date" name="date" th:value="${selectedDate != null ? #temporals.format(selectedDate, 'yyyy-MM-dd') : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="shift">Смяна (опционално):</label>
+                        <select id="shift" name="shift">
+                            <option value="">-- Всички смени --</option>
+                            <option value="1" th:selected="${selectedShift != null and selectedShift == 1}">Първа (1)</option>
+                            <option value="2" th:selected="${selectedShift != null and selectedShift == 2}">Втора (2)</option>
+                            <option value="3" th:selected="${selectedShift != null and selectedShift == 3}">Трета (3)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Търси</button>
+                </form>
+            </div>
+
+            <div th:if="${selectedWorkCenter != null or selectedDate != null or selectedShift != null}" class="selected-info">
+                <strong>Избрани филтри:</strong>
+                <span th:if="${selectedWorkCenter != null}">
+                    Работен център: <strong th:text="${selectedWorkCenter.number + ' - ' + selectedWorkCenter.description}"></strong>
+                </span>
+                <span th:if="${selectedWorkCenter == null}">
+                    Работен център: <strong>Всички</strong>
+                </span>
+                <span th:if="${selectedDate != null}">
+                    | Дата: <strong th:text="${#temporals.format(selectedDate, 'dd.MM.yyyy')}"></strong>
+                </span>
+                <span th:if="${selectedShift != null}">
+                    | Смяна: <strong th:text="${selectedShift}"></strong>
+                </span>
+            </div>
+
+            <div th:if="${schedules != null and !schedules.isEmpty()}">
+                <div class="info-badge">
+                    Намерени <strong th:text="${schedules.size()}"></strong> графика/и
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Смяна</th>
+                            <th>Работен център</th>
+                            <th>Производствена поръчка</th>
+                            <th>Продукт</th>
+                            <th>Количество</th>
+                            <th>Време (мин)</th>
+                            <th>Продажбена поръчка</th>
+                            <th>Артикул</th>
+                            <th sec:authorize="hasAnyRole('ADMIN', 'PRODUCTION_MANAGER')">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="schedule : ${schedules}">
+                            <td th:text="${#temporals.format(schedule.date, 'dd.MM.yyyy')}"></td>
+                            <td th:text="${schedule.shift}"></td>
+                            <td th:text="${schedule.workCenter}"></td>
+                            <td th:text="${schedule.productionOrder}"></td>
+                            <td th:text="${schedule.product != null ? schedule.product : 'Няма'}"></td>
+                            <td th:text="${schedule.quantity != null ? schedule.quantity : 'Няма'}"></td>
+                            <td th:text="${schedule.timeInMinutes != null ? schedule.timeInMinutes : 'Няма'}"></td>
+                            <td th:text="${schedule.salesOrder != null ? schedule.salesOrder : 'Няма'}"></td>
+                            <td th:text="${schedule.item != null ? schedule.item : 'Няма'}"></td>
+                            <td sec:authorize="hasAnyRole('ADMIN', 'PRODUCTION_MANAGER')">
+                                <a th:href="@{/schedules/edit/{id}(id=${schedule.id})}" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; margin-right: 5px;">Редактирай</a>
+                                <form th:action="@{/schedules/delete/{id}(id=${schedule.id})}" th:method="post" style="display: inline;">
+                                    <button type="submit" class="action-btn" style="padding: 5px 10px; font-size: 12px;" onclick="return confirm('Сигурни ли сте, че искате да изтриете този график?');">Изтрий</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${schedules == null or schedules.isEmpty()}" class="empty-state">
+                <h2>Няма намерени графици</h2>
+                <p>Използвайте формата по-горе, за да търсите графици по работен център, дата или смяна.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

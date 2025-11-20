@@ -21,11 +21,14 @@ public class Workshop extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
+    @Column(name = "active", nullable = false)
+    private Boolean active = true;
+
     @OneToMany(mappedBy = "workshop", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<WorkCenter> workCenters;
 
-    // Constructors
     public Workshop() {
         this.workCenters = new ArrayList<>();
+        this.active = true;
     }
 }

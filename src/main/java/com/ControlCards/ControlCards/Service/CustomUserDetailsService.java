@@ -36,6 +36,13 @@ public class CustomUserDetailsService implements UserDetailsService {
                     return new UsernameNotFoundException("User not found: " + username);
                 });
 
+        if (user.getRole() != Role.ADMIN) {
+            if (user.getActive() == null || !user.getActive()) {
+                log.warn("User {} is not active, denying access", username);
+                throw new UsernameNotFoundException("User account is deactivated: " + username);
+            }
+        }
+
         log.info("User found: {} with role: {}", username, user.getRole());
         
         return new org.springframework.security.core.userdetails.User(

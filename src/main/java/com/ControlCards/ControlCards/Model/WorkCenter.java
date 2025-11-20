@@ -21,11 +21,14 @@ public class WorkCenter extends BaseEntity {
     @Column(name = "machine_type", length = 100)
     private String machineType;
 
+    @Column(name = "active", nullable = false)
+    private Boolean active = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workshop_id", nullable = false)
     private Workshop workshop;
 
-    // Constructors
     public WorkCenter() {
+        this.active = true;
     }
 }

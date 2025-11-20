@@ -141,59 +141,68 @@
             <div class="user-info">
                 <p>Потребител: <strong sec:authentication="name"></strong></p>
                 <p>Роля: <strong sec:authentication="authorities"></strong></p>
-                <form th:action="@{/logout}" th:method="post" style="display: inline;">
-                    <button type="submit" class="logout-btn">Изход</button>
-                </form>
+                <div style="margin-top: 10px;">
+                    <a th:href="@{/profile}" class="btn" style="background: #667eea; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; margin-right: 10px; display: inline-block;">Моят профил</a>
+                    <form th:action="@{/logout}" th:method="post" style="display: inline;">
+                        <button type="submit" class="logout-btn">Изход</button>
+                    </form>
+                </div>
             </div>
         </div>
 
         <div class="dashboard-grid">
-            <!-- Admin Section -->
-            <div class="card" sec:authorize="hasRole('ADMIN')">
-                <h2>Администрация</h2>
-                <ul>
-                    <li><a th:href="@{/admin/users}">Управление на потребители</a></li>
-                    <li><a th:href="@{/admin/workshops}">Управление на цехове</a></li>
-                    <li><a th:href="@{/admin/workcenters}">Управление на работни центрове</a></li>
-                    <li><a th:href="@{/admin/logs}">Преглед на логове</a></li>
-                    <li><a th:href="@{/cards/all}">Преглед на всички карти</a></li>
-                </ul>
-            </div>
+                    <div class="card" sec:authorize="hasRole('ADMIN')">
+                        <h2>Администрация</h2>
+                        <ul>
+                            <li><a th:href="@{/admin/users}">Управление на потребители</a></li>
+                            <li><a th:href="@{/admin/workshops}">Управление на цехове</a></li>
+                            <li><a th:href="@{/admin/workcenters}">Управление на работни центрове</a></li>
+                            <li><a th:href="@{/admin/logs}">Преглед на логове</a></li>
+                            <li><a th:href="@{/cards/all}">Преглед на всички карти</a></li>
+                            <li><a th:href="@{/cards/closed}">Преглед на затворени карти</a></li>
+                            <li><a th:href="@{/cards/archived}">Преглед на архивирани карти</a></li>
+                            <li><a th:href="@{/schedules}">Работни графици</a></li>
+                            <li><a th:href="@{/schedules/new}">Създаване на график</a></li>
+                        </ul>
+                    </div>
 
-            <!-- Production Manager Section - Управление и затваряне на карти -->
             <div class="card" sec:authorize="hasRole('PRODUCTION_MANAGER')">
                 <h2>Управление на производството</h2>
                 <ul>
                     <li><a th:href="@{/cards/extended}">Преглед на разширени карти</a></li>
-                    <li><a th:href="@{/cards/extended}">Затваряне на карти</a></li>
                     <li><a th:href="@{/cards/all}">Преглед на всички карти</a></li>
+                    <li><a th:href="@{/cards/closed}">Преглед на затворени карти</a></li>
+                    <li><a th:href="@{/cards/archived}">Преглед на архивирани карти</a></li>
+                    <li><a th:href="@{/schedules}">Работни графици</a></li>
+                    <li><a th:href="@{/schedules/new}">Създаване на график</a></li>
                 </ul>
             </div>
 
-            <!-- Manager Section - Само преглед -->
             <div class="card" sec:authorize="hasRole('MANAGER')">
                 <h2>Преглед</h2>
                 <ul>
                     <li><a th:href="@{/cards/extended}">Преглед на разширени карти</a></li>
                     <li><a th:href="@{/cards/all}">Преглед на всички карти</a></li>
+                    <li><a th:href="@{/cards/closed}">Преглед на затворени карти</a></li>
+                    <li><a th:href="@{/cards/archived}">Преглед на архивирани карти</a></li>
+                    <li><a th:href="@{/schedules}">Работни графици</a></li>
                 </ul>
             </div>
 
-            <!-- Technician Section -->
             <div class="card" sec:authorize="hasRole('TECHNICIAN')">
                 <h2>Техник</h2>
                 <ul>
                     <li><a th:href="@{/cards/created}">Преглед на нови карти</a></li>
-                    <li><a th:href="@{/cards/created}">Разширяване на карти</a></li>
+                    <li><a th:href="@{/schedules}">Работни графици</a></li>
                 </ul>
             </div>
 
-            <!-- Worker Section -->
             <div class="card" sec:authorize="hasRole('WORKER')">
                 <h2>Работник</h2>
                 <ul>
                     <li><a th:href="@{/cards/new}">Създаване на нова карта</a></li>
-                    <li><a th:href="@{/cards/created}">Преглед на нови карти</a></li>
+                    <li><a th:href="@{/cards/view}">Преглед на карти</a></li>
+                    <li><a th:href="@{/schedules}">Работни графици</a></li>
                 </ul>
             </div>
         </div>
@@ -204,6 +213,9 @@
                 <a th:href="@{/cards/new}" class="action-btn" sec:authorize="hasRole('WORKER')">
                     Създай нова карта
                 </a>
+                <a th:href="@{/cards/view}" class="action-btn" sec:authorize="hasRole('WORKER')">
+                    Преглед на карти
+                </a>
                 <a th:href="@{/cards/created}" class="action-btn" sec:authorize="hasRole('TECHNICIAN')">
                     Преглед на нови карти
                 </a>
@@ -213,8 +225,14 @@
                 <a th:href="@{/cards/all}" class="action-btn" sec:authorize="hasAnyRole('ADMIN', 'PRODUCTION_MANAGER', 'MANAGER')">
                     Преглед на всички карти
                 </a>
-                <a th:href="@{/info}" class="action-btn">
-                    Информация
+                <a th:href="@{/cards/closed}" class="action-btn" sec:authorize="hasAnyRole('ADMIN', 'PRODUCTION_MANAGER', 'MANAGER')">
+                    Затворени карти
+                </a>
+                <a th:href="@{/cards/archived}" class="action-btn" sec:authorize="hasAnyRole('ADMIN', 'PRODUCTION_MANAGER', 'MANAGER')">
+                    Архивирани карти
+                </a>
+                <a th:href="@{/schedules}" class="action-btn">
+                    Работни графици
                 </a>
             </div>
         </div>

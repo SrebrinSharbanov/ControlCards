@@ -1,62 +1,287 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Form</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="|${user.id == null ? 'Създаване на потребител' : 'Редактиране на потребител'} - ControlCards|"></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .form-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-group input[type="password"] {
+            font-family: 'Courier New', monospace;
+        }
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+        }
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1 th:text="${user.id == null ? 'Create User' : 'Edit User'}">User Form</h1>
-    <form th:action="@{/admin/users/new}" th:if="${user.id == null}" th:object="${user}" th:method="post">
-        <div>
-            <label>Username</label>
-            <input type="text" th:field="*{username}"/>
+    <div class="container">
+        <div class="header">
+            <h1 th:text="${user.id == null ? 'Създаване на потребител' : 'Редактиране на потребител'}">Форма за потребител</h1>
+            <a th:href="@{/admin/users}" class="btn btn-secondary">Отказ</a>
         </div>
-        <div>
-            <label>Password</label>
-            <input type="password" th:field="*{password}"/>
+
+        <div class="form-card">
+            <form th:action="@{/admin/users/new}" th:if="${user.id == null}" th:object="${user}" th:method="post">
+                <div class="form-group">
+                    <label for="username">Потребителско име *</label>
+                    <input type="text" id="username" th:field="*{username}" required />
+                    <div class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Парола *</label>
+                    <input type="password" id="password" th:field="*{password}" required />
+                    <div class="help-text">Минимум 6 символа</div>
+                    <div class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="firstName">Име *</label>
+                    <input type="text" id="firstName" th:field="*{firstName}" required />
+                    <div class="error-message" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Фамилия *</label>
+                    <input type="text" id="lastName" th:field="*{lastName}" required />
+                    <div class="error-message" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="role">Роля *</label>
+                    <select id="role" th:field="*{role}" required>
+                        <option value="">Избери роля</option>
+                        <option th:each="role : ${roles}" 
+                                th:value="${role}" 
+                                th:text="${role}"></option>
+                    </select>
+                    <div class="error-message" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+                </div>
+                <div class="form-group" th:if="${allWorkshops != null and !allWorkshops.isEmpty()}">
+                    <label>Цехове</label>
+                    <div style="border: 2px solid #ddd; border-radius: 5px; padding: 15px; max-height: 300px; overflow-y: auto; background: #f8f9fa;">
+                        <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #ddd;">
+                            <input type="checkbox" 
+                                   id="select-all-new"
+                                   name="selectAll"
+                                   value="true"
+                                   style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+                            <label for="select-all-new" 
+                                   style="cursor: pointer; font-weight: 600; color: #667eea;">
+                                Маркирай всички
+                            </label>
+                        </div>
+                        <div th:each="workshop : ${allWorkshops}" style="margin-bottom: 10px; display: flex; align-items: center;">
+                            <input type="checkbox" 
+                                   th:id="'workshop-new-' + ${workshop.id}"
+                                   name="workshopIds" 
+                                   th:value="${workshop.id}"
+                                   style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+                            <label th:for="'workshop-new-' + ${workshop.id}" 
+                                   th:text="${workshop.name}"
+                                   style="cursor: pointer; flex: 1; margin: 0; font-weight: normal;">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="help-text" style="margin-top: 10px;">
+                        Изберете цеховете, до които потребителят трябва да има достъп. Използвайте checkboxes за да добавите/премахнете цехове.
+                        <br>
+                        <a th:href="@{/admin/workshops}" target="_blank" style="color: #667eea; text-decoration: underline; margin-top: 5px; display: inline-block;">
+                            Управление на цехове →
+                        </a>
+                    </div>
+                </div>
+                <div class="form-group" th:if="${allWorkshops == null or allWorkshops.isEmpty()}">
+                    <div style="padding: 15px; background: #f8d7da; border-radius: 5px; border: 1px solid #f5c6cb;">
+                        <p style="color: #721c24; margin-bottom: 10px;">Няма създадени цехове в системата.</p>
+                        <a th:href="@{/admin/workshops/new}" class="btn btn-primary" style="display: inline-block; padding: 8px 16px; font-size: 14px;">
+                            Създай нов цех
+                        </a>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Запази</button>
+                    <a th:href="@{/admin/users}" class="btn btn-secondary">Отказ</a>
+                </div>
+            </form>
+
+            <form th:action="@{/admin/users/edit/{id}(id=${user.id})}" th:if="${user.id != null}" th:object="${user}" th:method="post">
+                <div class="form-group">
+                    <label for="username-edit">Потребителско име *</label>
+                    <input type="text" id="username-edit" th:field="*{username}" required />
+                    <div class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="password-edit">Парола</label>
+                    <input type="password" id="password-edit" th:field="*{password}" />
+                    <div class="help-text">Оставете празно, ако не искате да променяте паролата</div>
+                    <div class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="firstName-edit">Име *</label>
+                    <input type="text" id="firstName-edit" th:field="*{firstName}" required />
+                    <div class="error-message" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="lastName-edit">Фамилия *</label>
+                    <input type="text" id="lastName-edit" th:field="*{lastName}" required />
+                    <div class="error-message" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="role-edit">Роля *</label>
+                    <select id="role-edit" th:field="*{role}" required>
+                        <option value="">Избери роля</option>
+                        <option th:each="role : ${roles}" 
+                                th:value="${role}" 
+                                th:text="${role}"></option>
+                    </select>
+                    <div class="error-message" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+                </div>
+                <div class="form-group" th:if="${allWorkshops != null and !allWorkshops.isEmpty()}">
+                    <label>Цехове</label>
+                    <div style="border: 2px solid #ddd; border-radius: 5px; padding: 15px; max-height: 300px; overflow-y: auto; background: #f8f9fa;">
+                        <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #ddd;">
+                            <input type="checkbox" 
+                                   id="select-all-edit"
+                                   name="selectAll"
+                                   value="true"
+                                   style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+                            <label for="select-all-edit" 
+                                   style="cursor: pointer; font-weight: 600; color: #667eea;">
+                                Маркирай всички
+                            </label>
+                        </div>
+                        <div th:each="workshop : ${allWorkshops}" style="margin-bottom: 10px; display: flex; align-items: center;">
+                            <input type="checkbox" 
+                                   th:id="'workshop-' + ${workshop.id}"
+                                   name="workshopIds" 
+                                   th:value="${workshop.id}"
+                                   th:checked="${user.workshops != null and user.workshops.![id].contains(workshop.id)}"
+                                   style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+                            <label th:for="'workshop-' + ${workshop.id}" 
+                                   th:text="${workshop.name}"
+                                   style="cursor: pointer; flex: 1; margin: 0; font-weight: normal;">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="help-text" style="margin-top: 10px;">
+                        Изберете цеховете, до които потребителят трябва да има достъп. Използвайте checkboxes за да добавите/премахнете цехове.
+                        <br>
+                        <a th:href="@{/admin/workshops}" target="_blank" style="color: #667eea; text-decoration: underline; margin-top: 5px; display: inline-block;">
+                            Управление на цехове →
+                        </a>
+                    </div>
+                </div>
+                <div class="form-group" th:if="${allWorkshops == null or allWorkshops.isEmpty()}">
+                    <div style="padding: 15px; background: #f8d7da; border-radius: 5px; border: 1px solid #f5c6cb;">
+                        <p style="color: #721c24; margin-bottom: 10px;">Няма създадени цехове в системата.</p>
+                        <a th:href="@{/admin/workshops/new}" class="btn btn-primary" style="display: inline-block; padding: 8px 16px; font-size: 14px;">
+                            Създай нов цех
+                        </a>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Запази промените</button>
+                    <a th:href="@{/admin/users}" class="btn btn-secondary">Отказ</a>
+                </div>
+            </form>
         </div>
-        <div>
-            <label>First Name</label>
-            <input type="text" th:field="*{firstName}"/>
-        </div>
-        <div>
-            <label>Last Name</label>
-            <input type="text" th:field="*{lastName}"/>
-        </div>
-        <div>
-            <label>Role</label>
-            <select th:field="*{role}">
-                <option th:each="role : ${roles}" th:value="${role}" th:text="${role}"></option>
-            </select>
-        </div>
-        <button type="submit">Save</button>
-    </form>
-    <form th:action="@{/admin/users/edit/{id}(id=${user.id})}" th:if="${user.id != null}" th:object="${user}" th:method="post">
-        <div>
-            <label>Username</label>
-            <input type="text" th:field="*{username}"/>
-        </div>
-        <div>
-            <label>Password</label>
-            <input type="password" th:field="*{password}"/>
-        </div>
-        <div>
-            <label>First Name</label>
-            <input type="text" th:field="*{firstName}"/>
-        </div>
-        <div>
-            <label>Last Name</label>
-            <input type="text" th:field="*{lastName}"/>
-        </div>
-        <div>
-            <label>Role</label>
-            <select th:field="*{role}">
-                <option th:each="role : ${roles}" th:value="${role}" th:text="${role}"></option>
-            </select>
-        </div>
-        <button type="submit">Save</button>
-    </form>
-    <a th:href="@{/admin/users}">Cancel</a>
+    </div>
 </body>
 </html>
